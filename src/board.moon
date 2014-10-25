@@ -1,0 +1,9 @@
+--
+-- Job boards a.k.a. crontabs
+--
+-- To make these work, we mark every job we load from 
+-- a board in a `jobs:external` set. That way, we can 
+-- easily diff what's in the board file with what's in
+-- Redis and remove jobs that are no longer there... 
+-- without accidentally removing jobs that were never 
+-- loaded through a board in the first place.
