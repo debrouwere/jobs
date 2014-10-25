@@ -21,4 +21,5 @@ local meta = {
 }
 local serialized_meta = cjson.encode(meta)
 redis.call('hset', board, id, serialized_meta)
-return redis.call('hset', registry, runner, "jobs-" .. tostring(runner) .. "-runner")
+redis.call('hset', registry, runner, "jobs-" .. tostring(runner) .. "-runner")
+return redis.call('evalsha', jnext, 2, board, schedule, id)

@@ -22,7 +22,8 @@ for _index_0 = 1, #scriptfiles do
 end
 local store = redis.connect('127.0.0.1', 6379)
 local evalshas = store:pipeline(function(pipeline)
-  for i, script in ipairs(scripts) do
+  for _index_0 = 1, #scripts do
+    local script = scripts[_index_0]
     pipeline:script('load', script)
   end
 end)
