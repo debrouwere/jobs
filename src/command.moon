@@ -5,40 +5,91 @@
 -- 
 
 argparse = require 'argparse'
-jobs = require 'jobs.lua'
+jobs = require 'src/client/init'
+utils = require 'src/utils/utils'
+timing = require 'src/utils/timing'
 
-with parser = argparse!
+parser = argparse!
+with parser
     \name 'jobs'
-    \description 'tk'
-    -- create, put, show, delete
-    -- register (register a runner)
-    -- board (load/update jobs from a job board file)
-    -- pop, next (shows next, doesn't change it unless it's in the past)
-    -- tick (core feature -- the heartbeat of jobs)
-    \argument 'action'
+    \description utils.dedent [[
+        Hello there chaps!
+        Here's a sort of description of sorts.
+    ]]
 
-    --
-    -- all options and arguments for `put`
-    --
-    \argument 'runner'
-    -- we can also accept a payload over stdin
-    \argument 'payload'
+show     = parser\command 'show'
+remove   = parser\command 'remove'
+create   = parser\command 'create'
+put      = parser\command 'put'
+tick     = parser\command 'tick'
+-- register = parser\command 'register'
+-- board    = parser\command 'board'
+-- pop      = parser\command 'pop'
+-- next     = parser\command 'next'
 
-    \option '-s', '--seconds'
-    \option '-m', '--minutes'
-    \option '-h', '--hours'
-    \option '-d', '--days'
+for command in *{show, remove}
+    with command
+        \argument('name')
 
-    \option '-l', '--lambda'
-    -- step will use whichever unit is set in --seconds, --minutes etc.
-    \option '-x', '--step'
+for command in *{create, put}
+    with command
+        \argument('name')\description('A job identifier; can be any string.')
+        \argument('runner')\description('Which job runner to use, e.g. shell.')
+        -- we can also accept a payload over stdin
+        \argument('payload')\description('What to pass to the runner.')
 
-    \option '-n', '--only-if-new'
+        -- unlike cron, these are all intervals, so e.g. a month is not 28, 30 
+        -- or 31 days depending on the month, but an interval of 30.4375 days
+        \option('-s', '--seconds')\description('Run the job every <seconds> seconds.')
+        \option('-m', '--minutes')\description('Run the job every <minutes> minutes.')
+        \option('-h', '--hours')\description('Run the job every <hours> hours.')
+        \option('-d', '--days')\description('Run the job every <days> days.')
+        \option('-w', '--weeks')\description('Run the job every <weeks> weeks.')
+        \option('-M', '--months')\description('Run the job every <months> months.')
+        \option('-q', '--quarters')\description('Run the job every <quarters> quarters.')
+        \option('-y', '--years')\description('Run the job every <years> years.')
 
-    \option '-f', '--from'
-    \option '-u', '--until'
+        \option('-l', '--lambda')\description('Grow or shrink the interval over time.')
+        -- step will use whichever unit is set in --seconds, --minutes etc.
+        \option('-x', '--step')\description('After what interval to apply lambda.')
 
-    -- duration will use whichever unit is set in --seconds, --minutes etc.
-    \option '-D', '--duration'
-    -- repeat x times (we will calculate stop based on this)
-    \option '-r', '--repeat'
+        \option('-f', '--from')\description('Run the job starting at <from> timestamp.')
+        \option('-u', '--until')\description('Remove the job after <until> timestamp.')
+
+        -- duration will use whichever unit is set in --seconds, --minutes etc.
+        \option('-D', '--duration')\description('Remove the job after <duration> seconds.')
+        -- repeat x times (we will calculate stop based on this)
+        \option('-r', '--repeat')\description('Remove the job after <repeat> runs.')
+
+
+arguments = parser\parse!
+
+board = jobs.Board!
+
+if arguments.create or arguments.put
+    update = if arguments.create then false else true
+    options = {:update}
+
+    board\put arguments.name, 
+        arguments.runner, arguments.payload, arguments, options
+
+else if arguments.show
+    print board\show arguments.name
+
+else if arguments.remove
+    board\remove arguments.name
+
+else if arguments.tick
+    error 'not implemented yet'
+
+else if arguments.register
+    error 'not implemented yet'
+
+else if arguments.board
+    error 'not implemented yet'
+
+else if arguments.pop
+    error 'not implemented yet'
+
+else if arguments.next
+    error 'not implemented yet'

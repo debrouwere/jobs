@@ -17,11 +17,14 @@ units =
     quarters: QUARTER
     years: YEAR
 
-seconds = (...) ->
+seconds = (spec) ->
     time = 0
 
-    for unit, value in pairs {...}
-        time += units[unit] * (value or 0)
+    for unit, value in pairs spec
+        if units[unit]
+            time += units[unit] * (value or 0)
+
+    time
 
 return {
     :SECOND, :MINUTE, :HOUR, :DAY, :WEEK, :MONTH, :QUARTER, :YEAR, 

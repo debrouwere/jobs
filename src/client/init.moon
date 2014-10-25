@@ -1,7 +1,7 @@
 -- Jobs reference high-level client library
 
-connect = require 'connect'
-timing = require 'timing'
+connect = require 'src/client/connect'
+timing = require 'src/utils/timing'
 
 
 class Queue
@@ -21,21 +21,19 @@ class Queue
 
 
 class Board
-    new: (name, ...) =>
+    new: (name='jobs', ...) =>
         @name = name
         @key = name
         @keys =
             board: @key
-            schedule: @key + ":schedule"
-            queue: @key + ":queue"
-            registry: @key + ":runners"
+            schedule: @key .. ":schedule"
+            queue: @key .. ":queue"
+            registry: @key .. ":runners"
         @client = connect ...
 
     put: (id, runner, payload, schedule, options) =>
-        if options.update == false
-            op = @client\jsetnx
-        else
-            op = @client\jset
+        nx = options.update == false
+        set = if nx then @client\jsetnx else @client\jset
 
         interval = timing.seconds schedule
 
@@ -46,7 +44,7 @@ class Board
         if schedule.duration
             error 'not implemented yet'
 
-        op @keys.board, @keys.schedule, @keys.registry, 
+        set 3, @keys.board, @keys.schedule, @keys.registry, 
             id, runner, payload, 
             interval, 
             schedule.start, schedule.stop, 
@@ -57,13 +55,13 @@ class Board
         @put ..., {update: false}
 
     show: (id) =>
-        @client\jget @keys.board, id
+        @client\jget 1, @keys.board, id
 
-    delete: (id) =>
-        @client\jdel @keys.board, @keys.schedule, id
+    remove: (id) =>
+        @client\jdel 2, @keys.board, @keys.schedule, id
 
     register: (runner, command) =>
-        @client\jregister @keys.registry, runner, command
+        @client\jregister 1, @keys.registry, runner, command
 
 
 return {
