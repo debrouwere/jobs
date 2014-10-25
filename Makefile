@@ -7,3 +7,7 @@ build:
 
 watch:
 	cd src && moonc -t ../lib -w .
+
+.PHONY: test
+test:
+	busted --verbose test/test.moon

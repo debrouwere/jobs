@@ -1,0 +1,22 @@
+local argparse = require('argparse')
+local jobs = require('jobs.lua')
+do
+  local parser = argparse()
+  parser:name('jobs')
+  parser:description('tk')
+  parser:argument('action')
+  parser:argument('runner')
+  parser:argument('payload')
+  parser:option('-s', '--seconds')
+  parser:option('-m', '--minutes')
+  parser:option('-h', '--hours')
+  parser:option('-d', '--days')
+  parser:option('-l', '--lambda')
+  parser:option('-x', '--step')
+  parser:option('-n', '--only-if-new')
+  parser:option('-f', '--from')
+  parser:option('-u', '--until')
+  parser:option('-D', '--duration')
+  parser:option('-r', '--repeat')
+  return parser
+end
