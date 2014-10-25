@@ -15,7 +15,7 @@ bin = (value, granularity) ->
 -- step determines the scale, that is, 
 --   after how many seconds do we go to a longer 
 --   or shorter interval
-tick = (last_run, interval, lambda=1, step=DAY, now=os.time()) ->
+tick = (last_run, interval, now, lambda=1, step=DAY) ->
     if lambda != 1
         age = now - start
         n = bin age, granularity
@@ -42,7 +42,7 @@ next_run = redis.call 'zscore', schedule, id
 if next_run < now
     next_run
 else if start <= now and now < stop
-    next_run = tick next_run, interval, lambda, step
+    next_run = tick next_run, interval, now, lambda, step
     redis.call 'zadd', schedule, next_run, id
 else
     next_run = -1

@@ -11,14 +11,15 @@
 jnext = redis.call 'hget', 'commands', 'jnext'
 
 
-{board, schedule, ...} = KEYS
+{board, schedule} = KEYS
+queues = [queue for queue in *KEYS[3,]]
 {now} = ARGV
 
 jobs = redis.call 'zrangebyscore', schedule, 0, now
 
 filters = {}
-for queue in *{...}
-    name = string.match queue '.+:(.+)$'
+for queue in *queues
+    name = string.match queue, '.+:(.+)$'
     filters[name] = queue
 
 pushed = 0
