@@ -54,6 +54,11 @@ class Board
     create: (...) =>
         @put ..., {update: false}
 
+    -- TODO: put a one-off job on the schedule
+    -- (no schedule, just act as a job queue)
+    schedule: (id, runner, payload) =>
+        error 'not implemented yet'
+
     show: (id) =>
         @client\jget 1, @keys.board, id
 
@@ -62,7 +67,6 @@ class Board
 
     register: (runner, command) =>
         @client\jregister 1, @keys.registry, runner, command
-
 
 return {
     redis: {:connect}, 
