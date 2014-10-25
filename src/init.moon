@@ -8,7 +8,7 @@ commands = {}
 -- find and load command scripts
 source = debug.getinfo(1).source
 here = string.match source, '^@(.+)/.+$'
-commands_directory = "#{here}/../lib/commands"
+commands_directory = "#{here}/../lib/redis"
 
 for file in lfs.dir commands_directory
     if name = string.match file, '(.+)\.lua$'
