@@ -1,15 +1,11 @@
--- 
--- Keep in mind that I'm stubbing out my ideal CLI
--- here. It doesn't have to be quite this full-featured
--- from the start.
--- 
-
 argparse = require 'argparse'
 jobs = require 'src/client/init'
+initialize = require 'src/init'
 utils = require 'src/utils/utils'
 timing = require 'src/utils/timing'
 
 parser = argparse!
+
 with parser
     \name 'jobs'
     \description utils.dedent [[
@@ -17,6 +13,7 @@ with parser
         Here's a sort of description of sorts.
     ]]
 
+init     = parser\command 'init'
 show     = parser\command 'show'
 remove   = parser\command 'remove'
 create   = parser\command 'create'
@@ -65,6 +62,14 @@ for command in *{create, put}
 arguments = parser\parse!
 
 board = jobs.Board!
+
+if arguments.init
+    commands = initialize!
+    print 'Loading Jobs commands into Redis.\n'
+    print 'Loaded:\n'
+    for name, sha in pairs commands
+        print "  #{name}    \t(#{sha})"
+    print ''
 
 if arguments.create or arguments.put
     update = if arguments.create then false else true

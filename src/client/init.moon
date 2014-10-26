@@ -7,17 +7,18 @@ timing = require 'src/utils/timing'
 class Queue
     new: (name, board) =>
         @board = board
+        @client = @board.client
         @name = name
         @key = @board.keys.queue + ":" + name
 
     pop: (format='plain') =>
-        payload = redis\jpop @key
+        payload = @client\jpop @key
 
         switch format
             when 'json'
-                cjson.decode payload
-            else
-                payload
+                payload = cjson.decode payload
+
+        payload
 
 
 class Board
@@ -44,7 +45,10 @@ class Board
         if schedule.duration
             error 'not implemented yet'
 
+        now = os.time()
+        
         set 3, @keys.board, @keys.schedule, @keys.registry, 
+            now, 
             id, runner, payload, 
             interval, 
             schedule.start, schedule.stop, 
@@ -68,7 +72,12 @@ class Board
     register: (runner, command) =>
         @client\jregister 1, @keys.registry, runner, command
 
+    queue: (name) =>
+        Queue name, @keys.board
+
+
 return {
     redis: {:connect}, 
-    Board: Board
+    Board: Board, 
+    Queue: Queue
 }

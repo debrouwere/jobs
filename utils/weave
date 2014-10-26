@@ -1,0 +1,43 @@
+#!/usr/bin/env moon
+
+lfs = require 'lfs'
+
+root = arg[1]
+templates = {}
+
+space = (s) ->
+    "\n\n#{s}"
+
+prepend = (pre, s) ->
+    string.gsub s, '([^\n]+)', pre .. '%1'
+
+for script in lfs.dir root
+    if name = string.match script, '(.+)\.tpl$'
+        table.insert templates, name
+
+for name in *templates
+    source = io.open "#{root}/#{name}.tpl"
+    destination = io.open "#{root}/#{name}", "w"
+
+    template = source\read '*all'
+    indentation, comment, dependency = string.match template, 
+        '\n?( *)(\-*)INCLUDE ([%w\._-]+)'
+
+    is_comment = (string.len comment) != 0
+
+    if dependency and not is_comment
+        print "Weaving #{dependency} into #{name}"
+
+        pattern = "\n?#{indentation}INCLUDE #{dependency}"
+        dependency_source = io.open "#{root}/#{dependency}"
+        header = "-- START INCLUDE #{dependency} --\nincluded = true\n"
+        footer = "-- END INCLUDE #{dependency} --\n"
+        include = header .. (dependency_source\read '*all') .. footer
+        parsed = string.gsub template, pattern, (space prepend indentation, include)
+
+        destination\write parsed
+    else
+        destination\write template
+
+    source\close!
+    destination\close!

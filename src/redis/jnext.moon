@@ -1,5 +1,5 @@
--- JNEXT board schedule id now
--- e.g. JNEXT jobs jobs:schedule mytask 1414139992
+-- JNEXT board schedule now id
+-- e.g. JNEXT jobs jobs:schedule 1414139992 mytask
 --
 -- keys: board, schedule
 
@@ -15,17 +15,24 @@ bin = (value, granularity) ->
 -- step determines the scale, that is, 
 --   after how many seconds do we go to a longer 
 --   or shorter interval
-tick = (last_run, interval, now, lambda=1, step=DAY) ->
+tick = (start, last_run, now, interval, lambda=1, step=DAY) ->
     if lambda != 1
         age = now - start
-        n = bin age, granularity
+        n = bin age, step
         multiplier = math.pow n, lambda
         interval = interval * multiplier
 
     last_run + interval
 
+-- this script can also be run as an include
+-- from within `jset`, `jsetnx` and `jtick`, 
+-- in which case these arguments are already
+-- present
 {board, schedule} = KEYS
-{id, now} = ARGV
+{now, id} = ARGV
+
+now = tonumber now
+
 serialized_job = redis.call 'hget', board, id
 {
     :runner, 
@@ -37,15 +44,28 @@ serialized_job = redis.call 'hget', board, id
     :step
 } = cjson.decode serialized_job
 
+stop = stop or math.huge
 next_run = redis.call 'zscore', schedule, id
+if next_run then next_run = tonumber next_run
 
-if next_run < now
+future = (next_run or 0) > now
+expired = now >= stop
+new = next_run == false
+
+if future
     next_run
-else if start <= now and now < stop
-    next_run = tick next_run, interval, now, lambda, step
-    redis.call 'zadd', schedule, next_run, id
 else
-    next_run = -1
-    redis.call 'zrem', schedule, id
+    if expired
+        next_run = -1
+        redis.call 'zrem', schedule, id
+        redis.call 'hdel', board, id
+    else
+        if new
+            next_run = start
+            redis.call 'zadd', schedule, next_run, id
+        else
+            last_run = next_run
+            next_run = tick start, last_run, now, interval, lambda, step
+            redis.call 'zadd', schedule, next_run, id
 
 next_run

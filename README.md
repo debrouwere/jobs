@@ -28,6 +28,11 @@ Works well, it's just a bit verbose.
 
 * lua
 
+## Distribute the workload
+
+* basics: open redis port on the machine where your scheduler lives; tell runners where they can get jobs
+* better: use our cloudformation/fleet templates
+
 ## Runners
 
 * shell

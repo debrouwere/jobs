@@ -1,5 +1,6 @@
 local argparse = require('argparse')
 local jobs = require('src/client/init')
+local initialize = require('src/init')
 local utils = require('src/utils/utils')
 local timing = require('src/utils/timing')
 local parser = argparse()
@@ -9,6 +10,7 @@ do
         Here's a sort of description of sorts.
     ]]))
 end
+local init = parser:command('init')
 local show = parser:command('show')
 local remove = parser:command('remove')
 local create = parser:command('create')
@@ -52,6 +54,15 @@ for _index_0 = 1, #_list_1 do
 end
 local arguments = parser:parse()
 local board = jobs.Board()
+if arguments.init then
+  local commands = initialize()
+  print('Loading Jobs commands into Redis.\n')
+  print('Loaded:\n')
+  for name, sha in pairs(commands) do
+    print("  " .. tostring(name) .. "    \t(" .. tostring(sha) .. ")")
+  end
+  print('')
+end
 if arguments.create or arguments.put then
   local update
   if arguments.create then

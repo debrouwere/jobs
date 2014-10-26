@@ -7,19 +7,19 @@ do
       if format == nil then
         format = 'plain'
       end
-      local payload = redis:jpop(self.key)
+      local payload = self.client:jpop(self.key)
       local _exp_0 = format
       if 'json' == _exp_0 then
-        return cjson.decode(payload)
-      else
-        return payload
+        payload = cjson.decode(payload)
       end
+      return payload
     end
   }
   _base_0.__index = _base_0
   local _class_0 = setmetatable({
     __init = function(self, name, board)
       self.board = board
+      self.client = self.board.client
       self.name = name
       self.key = self.board.keys.queue + ":" + name
     end,
@@ -66,12 +66,16 @@ do
       if schedule.duration then
         error('not implemented yet')
       end
-      return set(3, self.keys.board, self.keys.schedule, self.keys.registry, id, runner, payload, interval, schedule.start, schedule.stop, schedule.lambda, schedule.step)
+      local now = os.time()
+      return set(3, self.keys.board, self.keys.schedule, self.keys.registry, now, id, runner, payload, interval, schedule.start, schedule.stop, schedule.lambda, schedule.step)
     end,
     create = function(self, ...)
       return self:put(..., {
         update = false
       })
+    end,
+    schedule = function(self, id, runner, payload)
+      return error('not implemented yet')
     end,
     show = function(self, id)
       return self.client:jget(1, self.keys.board, id)
@@ -81,6 +85,9 @@ do
     end,
     register = function(self, runner, command)
       return self.client:jregister(1, self.keys.registry, runner, command)
+    end,
+    queue = function(self, name)
+      return Queue(name, self.keys.board)
     end
   }
   _base_0.__index = _base_0
@@ -116,5 +123,6 @@ return {
   redis = {
     connect = connect
   },
-  Board = Board
+  Board = Board,
+  Queue = Queue
 }
