@@ -11,8 +11,6 @@ end
 if (redis.call('hexists', board, id)) ~= 0 then
   return 0
 else
-  local included = true
-  local jnext = redis.call('hget', 'commands', 'jnext')
   local schedule, registry
   do
     local _obj_0 = KEYS
@@ -47,7 +45,6 @@ else
     now,
     id
   }
-  included = true
   local DAY = 1000 * 60 * 60 * 24
   local bin
   bin = function(value, granularity)

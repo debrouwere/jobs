@@ -3,7 +3,7 @@ all: build
 install:
 
 build:
-	./utils/weave src/redis
+	./utils/inline src/redis
 	cd src && moonc -t ../lib .
 
 watch:

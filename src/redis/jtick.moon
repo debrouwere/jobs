@@ -8,8 +8,6 @@
 -- and then use that to construct the appropriate
 -- JTICK command or commands.
 
-jnext = redis.call 'hget', 'commands', 'jnext'
-
 
 {board, schedule} = KEYS
 queues = [queue for queue in *KEYS[3,]]
@@ -30,10 +28,8 @@ for id in *jobs
     if filters[runner]
         redis.call 'lpush', queue, meta
 
-        --redis.call 'evalsha', jnext, 2, board, schedule, id, now
 
-        -- START INCLUDE jnext.moon --
-        included = true
+        -- START INLINED jnext --
         -- JNEXT board schedule now id
         -- e.g. JNEXT jobs jobs:schedule 1414139992 mytask
         --
@@ -105,7 +101,7 @@ for id in *jobs
                     redis.call 'zadd', schedule, next_run, id
 
         next_run
-        -- END INCLUDE jnext.moon --
+        -- END INLINED jnext --
 
 
         pushed += 1

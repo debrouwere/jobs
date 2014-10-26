@@ -3,7 +3,6 @@
 --
 -- keys: board, registry
 
-jnext = redis.call 'hget', 'commands', 'jnext'
 
 {board, schedule, registry} = KEYS
 {now, id, runner, payload, interval, start, stop, lambda, step} = ARGV
@@ -19,4 +18,4 @@ redis.call 'hset', registry, runner, "jobs-#{runner}-runner"
 
 KEYS = {board, schedule}
 ARGV = {now, id}
-INCLUDE jnext.moon
+require 'jnext'

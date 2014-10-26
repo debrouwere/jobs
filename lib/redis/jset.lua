@@ -1,4 +1,3 @@
-local jnext = redis.call('hget', 'commands', 'jnext')
 local board, schedule, registry
 do
   local _obj_0 = KEYS
@@ -33,7 +32,6 @@ local ARGV = {
   now,
   id
 }
-local included = true
 local DAY = 1000 * 60 * 60 * 24
 local bin
 bin = function(value, granularity)

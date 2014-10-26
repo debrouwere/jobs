@@ -3,7 +3,6 @@
 --
 -- keys: board, registry
 
-jnext = redis.call 'hget', 'commands', 'jnext'
 
 {board, schedule, registry} = KEYS
 {now, id, runner, payload, interval, start, stop, lambda, step} = ARGV
@@ -20,8 +19,7 @@ redis.call 'hset', registry, runner, "jobs-#{runner}-runner"
 KEYS = {board, schedule}
 ARGV = {now, id}
 
--- START INCLUDE jnext.moon --
-included = true
+-- START INLINED jnext --
 -- JNEXT board schedule now id
 -- e.g. JNEXT jobs jobs:schedule 1414139992 mytask
 --
@@ -93,5 +91,5 @@ else
             redis.call 'zadd', schedule, next_run, id
 
 next_run
--- END INCLUDE jnext.moon --
+-- END INLINED jnext --
 

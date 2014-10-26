@@ -21,17 +21,17 @@ for name in *templates
 
     template = source\read '*all'
     indentation, comment, dependency = string.match template, 
-        '\n?( *)(\-*)INCLUDE ([%w\._-]+)'
+        "\n?( *)(\-*)require ['\"]([^'\"]+)['\"]"
 
     is_comment = (string.len comment) != 0
 
     if dependency and not is_comment
-        print "Weaving #{dependency} into #{name}"
+        print "Inlining #{dependency} into #{name}"
 
-        pattern = "\n?#{indentation}INCLUDE #{dependency}"
-        dependency_source = io.open "#{root}/#{dependency}"
-        header = "-- START INCLUDE #{dependency} --\nincluded = true\n"
-        footer = "-- END INCLUDE #{dependency} --\n"
+        pattern = "\n?#{indentation}require ['\"]#{dependency}['\"]"
+        dependency_source = io.open "#{root}/#{dependency}.moon"
+        header = "-- START INLINED #{dependency} --\n"
+        footer = "-- END INLINED #{dependency} --\n"
         include = header .. (dependency_source\read '*all') .. footer
         parsed = string.gsub template, pattern, (space prepend indentation, include)
 

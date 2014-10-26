@@ -13,14 +13,12 @@ if (redis.call 'hexists', board, id) != 0
     0
 else 
 
-    -- START INCLUDE jset.moon --
-    included = true
+    -- START INLINED jset --
     -- JSET board schedule registry now id runner payload interval start stop lambda step
     -- e.g. jobs jobs:schedule jobs:runners 1414139992 myjob shell 'echo hey' 5000
     --
     -- keys: board, registry
 
-    jnext = redis.call 'hget', 'commands', 'jnext'
 
     {board, schedule, registry} = KEYS
     {now, id, runner, payload, interval, start, stop, lambda, step} = ARGV
@@ -37,8 +35,7 @@ else
     KEYS = {board, schedule}
     ARGV = {now, id}
 
-    -- START INCLUDE jnext.moon --
-    included = true
+    -- START INLINED jnext --
     -- JNEXT board schedule now id
     -- e.g. JNEXT jobs jobs:schedule 1414139992 mytask
     --
@@ -110,8 +107,8 @@ else
                 redis.call 'zadd', schedule, next_run, id
 
     next_run
-    -- END INCLUDE jnext.moon --
+    -- END INLINED jnext --
 
-    -- END INCLUDE jset.moon --
+    -- END INLINED jset --
 
     1

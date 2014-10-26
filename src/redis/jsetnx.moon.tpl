@@ -12,5 +12,5 @@
 if (redis.call 'hexists', board, id) != 0
     0
 else 
-    INCLUDE jset.moon
+    require 'jset'
     1

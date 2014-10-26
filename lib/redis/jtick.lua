@@ -1,4 +1,3 @@
-local jnext = redis.call('hget', 'commands', 'jnext')
 local board, schedule
 do
   local _obj_0 = KEYS
@@ -39,7 +38,6 @@ for _index_0 = 1, #jobs do
   end
   if filters[runner] then
     redis.call('lpush', queue, meta)
-    local included = true
     local DAY = 1000 * 60 * 60 * 24
     local bin
     bin = function(value, granularity)
