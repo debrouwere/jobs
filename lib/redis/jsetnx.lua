@@ -80,7 +80,7 @@ else
     next_run = tonumber(next_run)
   end
   local future = (next_run or 0) > now
-  local expired = now >= stop
+  local expired = now >= (tonumber(stop))
   local new = next_run == false
   if future then
     local _ = next_run

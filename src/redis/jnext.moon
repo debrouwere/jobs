@@ -49,7 +49,7 @@ next_run = redis.call 'zscore', schedule, id
 if next_run then next_run = tonumber next_run
 
 future = (next_run or 0) > now
-expired = now >= stop
+expired = now >= (tonumber stop)
 new = next_run == false
 
 if future

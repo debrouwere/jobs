@@ -21,7 +21,7 @@ do
       self.board = board
       self.client = self.board.client
       self.name = name
-      self.key = self.board.keys.queue + ":" + name
+      self.key = self.board.keys.queue .. ":" .. name
     end,
     __base = _base_0,
     __name = "Queue"
@@ -40,6 +40,9 @@ local Board
 do
   local _base_0 = {
     put = function(self, id, runner, payload, schedule, options)
+      if options == nil then
+        options = { }
+      end
       local nx = options.update == false
       local set
       if nx then
@@ -88,6 +91,18 @@ do
     end,
     queue = function(self, name)
       return Queue(name, self.keys.board)
+    end,
+    tick = function(self, now)
+      now = now or os.time()
+      local runners = self.client:hgetall(self.keys.registry)
+      local queues = { }
+      for runner, command in pairs(runners) do
+        table.insert(queues, (self:queue(runner)).name)
+      end
+      local nqueues = length(queues)
+      local nkeys = nqueues + 2
+      self.client:jtick(nkeys, (unpack(queues)), now)
+      return nqueues
     end
   }
   _base_0.__index = _base_0
