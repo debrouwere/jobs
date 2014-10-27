@@ -9,7 +9,7 @@ class Queue
         @board = board
         @client = @board.client
         @name = name
-        @key = @board.keys.queue + ":" + name
+        @key = @board.keys.queue .. ":" .. name
 
     pop: (format='plain') =>
         payload = @client\jpop @key
@@ -32,7 +32,7 @@ class Board
             registry: @key .. ":runners"
         @client = connect ...
 
-    put: (id, runner, payload, schedule, options) =>
+    put: (id, runner, payload, schedule, options={}) =>
         nx = options.update == false
         set = if nx then @client\jsetnx else @client\jset
 
@@ -74,6 +74,20 @@ class Board
 
     queue: (name) =>
         Queue name, @keys.board
+
+    tick: (now) =>
+        now = now or os.time()
+        runners = @client\hgetall @keys.registry
+        queues = {}
+        for runner, command in pairs runners
+            table.insert queues, (@queue runner).name
+
+        nqueues = length queues
+        nkeys = nqueues + 2
+
+        @client\jtick nkeys, (unpack queues), now
+
+        nqueues
 
 
 return {

@@ -114,7 +114,12 @@ describe 'low-level interface', ->
         assert.equals fourth, 40
 
     pending 'can remove a job', ->
-        
+        store\hset 'jobs', 'test', 'test'
+        store\jdel 1, 'jobs', 'test'
+        status = store\jget 1, 'jobs', 'test'
+
+        print status
+        assert.equals status, 0
 
     pending 'can schedule a job'
 
