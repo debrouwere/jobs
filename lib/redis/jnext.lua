@@ -1,7 +1,7 @@
 local DAY = 1000 * 60 * 60 * 24
 local bin
 bin = function(value, granularity)
-  return math.ceil(value / granularity)
+  return math.floor(value / granularity)
 end
 local tick
 tick = function(start, last_run, now, interval, lambda, step)
@@ -14,7 +14,7 @@ tick = function(start, last_run, now, interval, lambda, step)
   if lambda ~= 1 then
     local age = now - start
     local n = bin(age, step)
-    local multiplier = math.pow(n, lambda)
+    local multiplier = math.pow(lambda, n)
     interval = interval * multiplier
   end
   return last_run + interval

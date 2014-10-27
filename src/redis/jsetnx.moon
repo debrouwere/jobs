@@ -46,7 +46,7 @@ else
 
     -- put continuous values into discrete bins
     bin = (value, granularity) ->
-        math.ceil value / granularity
+        math.floor value / granularity
 
     -- lambda is the decay constant, 
     --   e.g. lambda 2 will double the interval every step
@@ -57,7 +57,7 @@ else
         if lambda != 1
             age = now - start
             n = bin age, step
-            multiplier = math.pow n, lambda
+            multiplier = math.pow lambda, n
             interval = interval * multiplier
 
         last_run + interval

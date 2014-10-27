@@ -4,20 +4,17 @@ connect = require 'client/connect'
 initialize = require 'init'
 --jobs = require 'src/jobs'
 
--- TODO: for better testing, to a proper setup/teardown:
--- flushdb + init
-
 describe 'low-level interface', ->
     local store
 
-    setup ->
+    refresh = ->
         store = connect!
         store\flushdb!
+        store\script 'flush'
         initialize!
-        store = connect!
 
-    teardown ->
-        store = nil
+    before_each refresh
+    teardown refresh
 
     it 'has a low-level redis interface', ->
         expected = 'hello world'
@@ -56,11 +53,68 @@ describe 'low-level interface', ->
         returned = cjson.decode store\hget 'jobs', 'second-job'
         assert.are.equal expected.payload, returned.payload
 
-    pending 'can get a job'
+    it 'can initialize a job', ->
+        interval = 5
+        now = 1000
 
-    pending 'can calculate when next a job should run'
+        next_run = store\jset 3, 'jobs', 'jobs:schedule', 'jobs:runners', 
+            now, 'third-job', 'shell', -1, interval
 
-    pending 'can remove a job'
+        assert.are.equal next_run, now
+
+    it 'can get a job', ->
+        store\hset 'jobs', 'raw-job', cjson.encode {message: 'hello world'}
+        a = store\jget 1, 'jobs', 'raw-job'
+        b = store\hget 'jobs', 'raw-job'
+
+        assert.are.equal a, b
+
+    it 'can calculate when next a job should run', ->
+        board = 'jobs'
+        schedule = 'jobs:schedules'
+        job = 'test'
+
+        store\hset board, job, cjson.encode {interval: 5}
+        store\zadd schedule, 0, job
+        
+        first  = store\jnext 2, board, schedule, 0, job
+        second = store\jnext 2, board, schedule, 4, job
+        third = store\jnext 2, board, schedule, 5, job
+
+        assert.equals first, 5
+        assert.equals second, 5
+        assert.equals third, 10
+
+    it 'can stretch or shrink the job interval', ->
+        board = 'jobs'
+        schedule = 'jobs:schedules'
+        job = 'test'
+
+        store\hset board, job, cjson.encode {
+            start: 0, 
+            interval: 5, 
+            step: 10, 
+            lambda: 2, 
+            }
+
+        first  = store\jnext 2, board, schedule, 0, job
+        first_ = store\jnext 2, board, schedule, 0, job
+        second = store\jnext 2, board, schedule, 5, job
+        third  = store\jnext 2, board, schedule, 10, job
+        third_ = store\jnext 2, board, schedule, 15, job
+        fourth = store\jnext 2, board, schedule, 20, job
+
+        -- there's no job in the schedule yet, so 
+        -- our first scheduled run will equal `start`
+        assert.equals first, 0
+        assert.equals first_, 5
+        assert.equals second, 10
+        assert.equals third, 20
+        assert.equals third_, 20
+        assert.equals fourth, 40
+
+    pending 'can remove a job', ->
+        
 
     pending 'can schedule a job'
 
@@ -68,7 +122,7 @@ describe 'low-level interface', ->
 
     pending 'can unschedule a job beyond stop'
 
-    pending 'can stretch or shrink the job interval'
+
 
     pending 'can put scheduled jobs that should run on the queue'
 
