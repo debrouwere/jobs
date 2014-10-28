@@ -13,8 +13,8 @@ connect = (...) ->
                     'evalsha', sha, ...
         }
 
-    -- whatever you add to redis.commands only gets added 
-    -- in for new clients
+    -- whatever you add to redis.commands only
+    -- gets added in for new clients
     return redis.connect ...
 
 

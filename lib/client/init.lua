@@ -1,5 +1,16 @@
+local cjson = require('cjson')
 local connect = require('src/client/connect')
 local timing = require('src/utils/timing')
+local parse
+parse = function(str, format)
+  if (type(str)) == 'string' then
+    local _exp_0 = format
+    if 'json' == _exp_0 then
+      str = cjson.decode(str)
+    end
+  end
+  return str
+end
 local Queue
 do
   local _base_0 = {
@@ -7,12 +18,8 @@ do
       if format == nil then
         format = 'plain'
       end
-      local payload = self.client:jpop(self.key)
-      local _exp_0 = format
-      if 'json' == _exp_0 then
-        payload = cjson.decode(payload)
-      end
-      return payload
+      local meta = self.client:jpop(1, self.key)
+      return parse(meta, format)
     end
   }
   _base_0.__index = _base_0
@@ -70,7 +77,8 @@ do
         error('not implemented yet')
       end
       local now = os.time()
-      return set(3, self.keys.board, self.keys.schedule, self.keys.registry, now, id, runner, payload, interval, schedule.start, schedule.stop, schedule.lambda, schedule.step)
+      local next_run = set(3, self.keys.board, self.keys.schedule, self.keys.registry, now, id, runner, payload, interval, schedule.start, schedule.stop, schedule.lambda, schedule.step)
+      return tonumber(next_run)
     end,
     create = function(self, ...)
       return self:put(..., {
@@ -80,29 +88,32 @@ do
     schedule = function(self, id, runner, payload)
       return error('not implemented yet')
     end,
-    show = function(self, id)
-      return self.client:jget(1, self.keys.board, id)
+    show = function(self, id, format)
+      local meta = self.client:jget(1, self.keys.board, id)
+      return parse(meta, format)
     end,
     remove = function(self, id)
-      return self.client:jdel(2, self.keys.board, self.keys.schedule, id)
+      local n_removed = self.client:jdel(2, self.keys.board, self.keys.schedule, id)
+      return tonumber(n_removed)
     end,
     register = function(self, runner, command)
       return self.client:jregister(1, self.keys.registry, runner, command)
     end,
     queue = function(self, name)
-      return Queue(name, self.keys.board)
+      return Queue(name, self)
     end,
     tick = function(self, now)
       now = now or os.time()
       local runners = self.client:hgetall(self.keys.registry)
       local queues = { }
       for runner, command in pairs(runners) do
-        table.insert(queues, (self:queue(runner)).name)
+        table.insert(queues, (self:queue(runner)).key)
       end
-      local nqueues = length(queues)
-      local nkeys = nqueues + 2
-      self.client:jtick(nkeys, (unpack(queues)), now)
-      return nqueues
+      local n_queues = #queues
+      local n_keys = n_queues + 2
+      table.insert(queues, now)
+      self.client:jtick(n_keys, self.keys.board, self.keys.schedule, unpack(queues))
+      return n_queues
     end
   }
   _base_0.__index = _base_0

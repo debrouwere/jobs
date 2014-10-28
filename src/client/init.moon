@@ -1,7 +1,16 @@
 -- Jobs reference high-level client library
 
+cjson = require 'cjson'
 connect = require 'src/client/connect'
 timing = require 'src/utils/timing'
+
+parse = (str, format) ->
+    if (type str) == 'string'
+        switch format
+            when 'json'
+                str = cjson.decode str
+
+    str
 
 
 class Queue
@@ -12,13 +21,8 @@ class Queue
         @key = @board.keys.queue .. ":" .. name
 
     pop: (format='plain') =>
-        payload = @client\jpop @key
-
-        switch format
-            when 'json'
-                payload = cjson.decode payload
-
-        payload
+        meta = @client\jpop 1, @key
+        parse meta, format
 
 
 class Board
@@ -47,12 +51,14 @@ class Board
 
         now = os.time()
         
-        set 3, @keys.board, @keys.schedule, @keys.registry, 
+        next_run = set 3, @keys.board, @keys.schedule, @keys.registry, 
             now, 
             id, runner, payload, 
             interval, 
             schedule.start, schedule.stop, 
             schedule.lambda, schedule.step
+
+        tonumber next_run
 
     -- creates but never updates existing jobs
     create: (...) =>
@@ -63,31 +69,37 @@ class Board
     schedule: (id, runner, payload) =>
         error 'not implemented yet'
 
-    show: (id) =>
-        @client\jget 1, @keys.board, id
+    show: (id, format) =>
+        meta = @client\jget 1, @keys.board, id
+        parse meta, format
 
     remove: (id) =>
-        @client\jdel 2, @keys.board, @keys.schedule, id
+        n_removed = @client\jdel 2, @keys.board, @keys.schedule, id
+        tonumber n_removed
 
     register: (runner, command) =>
         @client\jregister 1, @keys.registry, runner, command
 
     queue: (name) =>
-        Queue name, @keys.board
+        Queue name, @
 
     tick: (now) =>
         now = now or os.time()
         runners = @client\hgetall @keys.registry
         queues = {}
         for runner, command in pairs runners
-            table.insert queues, (@queue runner).name
+            table.insert queues, (@queue runner).key
 
-        nqueues = length queues
-        nkeys = nqueues + 2
+        n_queues = #queues
+        n_keys = n_queues + 2
 
-        @client\jtick nkeys, (unpack queues), now
+        -- Lua quirk: unpack has to be the final argument, 
+        -- so we tack on `now` instead of specifying it 
+        -- separately during the function call
+        table.insert queues, now
+        @client\jtick n_keys, @keys.board, @keys.schedule, unpack(queues)
 
-        nqueues
+        n_queues
 
 
 return {

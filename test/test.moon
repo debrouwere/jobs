@@ -1,6 +1,6 @@
 cjson = require 'cjson'
 redis = require 'redis'
-connect = require 'client/connect'
+jobs = require 'client/init'
 initialize = require 'init'
 
 
@@ -19,7 +19,7 @@ describe 'low-level interface', ->
     local store
 
     refresh = ->
-        store = connect!
+        store = jobs.redis.connect!
         store\flushdb!
         store\script 'flush'
         initialize!
@@ -231,14 +231,13 @@ describe 'low-level interface', ->
 
 
 describe 'high-level interface', ->
-    jobs = require 'client/init'
     timing = require 'utils/timing'
 
     local store
     local board
 
     refresh = ->
-        store = connect!
+        store = jobs.redis.connect!
         store\flushdb!
         store\script 'flush'
         initialize!
@@ -253,7 +252,16 @@ describe 'high-level interface', ->
     params = 
         seconds: 5
 
-    pending 'can convert responses to the proper types'
+    it 'can convert responses to the proper types', ->
+        next_run = board\put name, runner, payload, params
+        assert.equals (type next_run), 'number'
+
+    it 'can parse job metadata or leave it as a string', ->
+        board\put name, runner, payload, params
+        plain = board\show name
+        t = board\show name, 'json'
+        assert.equals (type plain), 'string'
+        assert.equals (type t), 'table'
 
     it 'can add a job', ->
         board\put name, runner, payload, params
@@ -262,11 +270,16 @@ describe 'high-level interface', ->
         assert.equals meta.interval, 5
 
     it 'can pop a job of the specified type from the queue', ->
-        board\put name, runner, payload, params        
+        board\put 'first-shell-job', 'shell', payload, params        
         board\put 'first-console-job', 'console', payload, params
-        board\tick!
-        --task = board\queue('console')\pop!
-        --print task
+        
+        -- how many queues did the tick affect?
+        queues = board\tick!
+        assert.equals queues, 2
+        task = board\queue('console')\pop 'json'
+        assert.equals task.id, 'first-console-job'
+        task = board\queue('console')\pop 'json'
+        assert.falsy task
 
     it 'can convert human-readable intervals to seconds', ->
         time = 
