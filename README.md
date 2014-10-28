@@ -1,5 +1,7 @@
 # Jobs
 
+[![Build Status](https://travis-ci.org/debrouwere/jobs.svg?branch=master)](https://travis-ci.org/debrouwere/jobs)
+
 Jobs is a full-featured scheduler. **Warning:** not quite ready for prime time, don't use this.
 
 Features: 
