@@ -3,13 +3,15 @@ language: c
 install:
   - sudo apt-get install redis-server
   - sudo apt-get install lua5.1 liblua5.1-dev
+  - sudo apt-get install openssl libssl-dev
+  # luarocks and accoutrements
   - sudo apt-get install luarocks
-  - sudo luarocks install luasec
-  # hmm, it should be possible to just use the rockspec
-  - sudo luarocks install moonscript
   - sudo luarocks install luasocket
+  - sudo luarocks install luasec
+  # app dependencies
+  - sudo luarocks install moonscript
   - sudo luarocks install lua-cjson
   - sudo luarocks install redis-lua
   - sudo luarocks install luafilesystem
-  # - sudo luarocks install argparse
+  ### - sudo luarocks install argparse
   - sudo luarocks install busted
