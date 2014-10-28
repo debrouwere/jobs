@@ -68,7 +68,7 @@ board:set('my job', 'console', 'hello world', {
 -- accessible using their name rather than
 -- their sha hash, but nothing more
 local jobs = require('jobs/client/init')
-local client = jobs.redis.connect!
+local client = jobs.redis.connect()
 local now = os.time()
 local later = now + 60 * 60
 client:jset(3, 'jobs', 'jobs:schedule', 'jobs:runners', now, 
