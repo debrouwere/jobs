@@ -5,4 +5,10 @@ install:
   - sudo apt-get install lua5.1 liblua5.1-dev
   - sudo apt-get install luarocks
   # hmm, it should be possible to just use the rockspec
-  - sudo luarocks install moonscript luasocket lua-cjson redis-lua luafilesystem argparse busted
+  - sudo luarocks install moonscript
+  - sudo luarocks install luasocket
+  - sudo luarocks install lua-cjson
+  - sudo luarocks install redis-lua
+  - sudo luarocks install luafilesystem
+  - sudo luarocks install argparse
+  - sudo luarocks install busted
