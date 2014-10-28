@@ -1,12 +1,12 @@
 package = "Jobs"
 version = "0.1.0-0"
 source = {
-   url = "..." -- We don't have one yet
+   url = "https://github.com/debrouwere/jobs/archive/master.zip"
 }
 description = {
    summary = "A next-generation cron.",
-   homepage = "http://...", -- We don't have one yet
-   license = "MIT"
+   homepage = "https://github.com/debrouwere/jobs/", 
+   license = "ISC"
 }
 dependencies = {
    "lua ~> 5.1", 
