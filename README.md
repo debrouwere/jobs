@@ -120,10 +120,10 @@ Alternatively, just `JPOP` tasks from a job queue (e.g. `jobs:queue:console`.)
 
 ## Features under consideration
 
-* **acks, timeouts and retries**: require finished jobs to call back and report success, failure or a status update; retry if necessary (`JACK`)
+* **acks, timeouts and retries**: require finished jobs to call back and report success, failure or a status update; retry if necessary (`JACK job-id 0|1|2` – success, failure, status update)
 * **job boards**: manage jobs in a specification file (similar to crontabs)
 * **defaults**: run many jobs with mostly the same options)
-* **dependencies**: run a job after one or more other jobs complete (`JWHEN`)
+* **dependencies**: run a job after one or more other jobs complete (`JWHEN job-id type payload dependencies...`)
 * **job queue**: submit one-off jobs
 * **advanced logging**: send logs to cloudwatch
 * **dashboard**: an overview of job failures and successes, with the possibility to drill down to individual jobs
