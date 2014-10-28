@@ -4,6 +4,7 @@ install:
   - sudo apt-get install redis-server
   - sudo apt-get install lua5.1 liblua5.1-dev
   - sudo apt-get install luarocks
+  - sudo luarocks install luasec
   # hmm, it should be possible to just use the rockspec
   - sudo luarocks install moonscript
   - sudo luarocks install luasocket
