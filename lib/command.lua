@@ -1,8 +1,8 @@
 local argparse = require('argparse')
-local jobs = require('src/client/init')
-local initialize = require('src/init')
-local utils = require('src/utils/utils')
-local timing = require('src/utils/timing')
+local jobs = require('lib/client/init')
+local initialize = require('lib/init')
+local utils = require('lib/utils/utils')
+local timing = require('lib/utils/timing')
 local parser = argparse()
 do
   parser:name('jobs')

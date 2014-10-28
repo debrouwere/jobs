@@ -1,8 +1,8 @@
 argparse = require 'argparse'
-jobs = require 'src/client/init'
-initialize = require 'src/init'
-utils = require 'src/utils/utils'
-timing = require 'src/utils/timing'
+jobs = require 'lib/client/init'
+initialize = require 'lib/init'
+utils = require 'lib/utils/utils'
+timing = require 'lib/utils/timing'
 
 parser = argparse!
 

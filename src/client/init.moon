@@ -1,8 +1,8 @@
 -- Jobs reference high-level client library
 
 cjson = require 'cjson'
-connect = require 'src/client/connect'
-timing = require 'src/utils/timing'
+connect = require 'lib/client/connect'
+timing = require 'lib/utils/timing'
 
 parse = (str, format) ->
     if (type str) == 'string'

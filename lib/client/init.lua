@@ -1,6 +1,6 @@
 local cjson = require('cjson')
-local connect = require('src/client/connect')
-local timing = require('src/utils/timing')
+local connect = require('lib/client/connect')
+local timing = require('lib/utils/timing')
 local parse
 parse = function(str, format)
   if (type(str)) == 'string' then
