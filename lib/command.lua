@@ -1,6 +1,7 @@
 local argparse = require('argparse')
 local jobs = require('lib/client/init')
 local initialize = require('lib/init')
+local respond = require('lib/respond')
 local utils = require('lib/utils/utils')
 local timing = require('lib/utils/timing')
 local parser = argparse()
@@ -16,6 +17,7 @@ local remove = parser:command('remove')
 local create = parser:command('create')
 local put = parser:command('put')
 local tick = parser:command('tick')
+respond = parser:command('respond')
 local _list_0 = {
   show,
   remove
@@ -52,6 +54,10 @@ for _index_0 = 1, #_list_1 do
     command:option('-r', '--repeat'):description('Remove the job after <repeat> runs.')
   end
 end
+do
+  respond:argument('type'):description('What type of job to respond to.')
+  respond:argument('executable'):description('The responding executable.')
+end
 local arguments = parser:parse()
 local board = jobs.Board()
 if arguments.init then
@@ -81,20 +87,24 @@ else
     if arguments.remove then
       return board:remove(arguments.name)
     else
-      if arguments.tick then
-        return error('not implemented yet')
+      if arguments.respond then
+        return board:respond(arguments.type, arguments.executable)
       else
-        if arguments.register then
+        if arguments.tick then
           return error('not implemented yet')
         else
-          if arguments.board then
+          if arguments.register then
             return error('not implemented yet')
           else
-            if arguments.pop then
+            if arguments.board then
               return error('not implemented yet')
             else
-              if arguments.next then
+              if arguments.pop then
                 return error('not implemented yet')
+              else
+                if arguments.next then
+                  return error('not implemented yet')
+                end
               end
             end
           end

@@ -1,6 +1,7 @@
 argparse = require 'argparse'
 jobs = require 'lib/client/init'
 initialize = require 'lib/init'
+respond = require 'lib/respond'
 utils = require 'lib/utils/utils'
 timing = require 'lib/utils/timing'
 
@@ -19,6 +20,7 @@ remove   = parser\command 'remove'
 create   = parser\command 'create'
 put      = parser\command 'put'
 tick     = parser\command 'tick'
+respond  = parser\command 'respond'
 -- register = parser\command 'register'
 -- board    = parser\command 'board'
 -- pop      = parser\command 'pop'
@@ -58,6 +60,9 @@ for command in *{create, put}
         -- repeat x times (we will calculate stop based on this)
         \option('-r', '--repeat')\description('Remove the job after <repeat> runs.')
 
+with respond
+    \argument('type')\description('What type of job to respond to.')
+    \argument('executable')\description('The responding executable.')
 
 arguments = parser\parse!
 
@@ -83,6 +88,9 @@ else if arguments.show
 
 else if arguments.remove
     board\remove arguments.name
+
+else if arguments.respond
+    board\respond arguments.type, arguments.executable
 
 else if arguments.tick
     error 'not implemented yet'

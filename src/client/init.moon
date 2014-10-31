@@ -9,6 +9,10 @@ parse = (str, format) ->
         switch format
             when 'json'
                 str = cjson.decode str
+            when 'plain'
+                str = str
+            else
+                error "unsupported format: got #{format}, expected json or plain"
 
     str
 
@@ -23,6 +27,29 @@ class Queue
     pop: (format='plain') =>
         meta = @client\jpop 1, @key
         parse meta, format
+
+    listen: =>
+        local format, listener
+
+        switch #args
+            when 1
+                format = 'plain'
+                {listener} = args
+            when 2
+                {format, listener} = args
+            else
+                error 'listen takes two arguments: format and listener'
+
+        last = os.time()
+        while true
+            -- pop at most once a second
+            now = os.time()
+            if now > last
+                last = now
+                popped = @pop format
+                -- there might be no pending jobs
+                if popped
+                    listener popped
 
 
 class Board
@@ -100,6 +127,16 @@ class Board
         @client\jtick n_keys, @keys.board, @keys.schedule, unpack(queues)
 
         n_queues
+
+    respond: (queue, command) ->
+        queue = @queues queue
+        queue\listen (meta) ->
+            if string.match command, '{payload}'
+                command = string.gsub command, '{payload}', payload
+                os.execute command
+            else
+                command = io.popen command, 'w'
+                command\write meta
 
 
 return {

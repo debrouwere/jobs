@@ -7,6 +7,10 @@ parse = function(str, format)
     local _exp_0 = format
     if 'json' == _exp_0 then
       str = cjson.decode(str)
+    elseif 'plain' == _exp_0 then
+      str = str
+    else
+      error("unsupported format: got " .. tostring(format) .. ", expected json or plain")
     end
   end
   return str
@@ -20,6 +24,35 @@ do
       end
       local meta = self.client:jpop(1, self.key)
       return parse(meta, format)
+    end,
+    listen = function(self)
+      local format, listener
+      local _exp_0 = #args
+      if 1 == _exp_0 then
+        format = 'plain'
+        do
+          local _obj_0 = args
+          listener = _obj_0[1]
+        end
+      elseif 2 == _exp_0 then
+        do
+          local _obj_0 = args
+          format, listener = _obj_0[1], _obj_0[2]
+        end
+      else
+        error('listen takes two arguments: format and listener')
+      end
+      local last = os.time()
+      while true do
+        local now = os.time()
+        if now > last then
+          last = now
+          local popped = self:pop(format)
+          if popped then
+            listener(popped)
+          end
+        end
+      end
     end
   }
   _base_0.__index = _base_0
@@ -114,6 +147,18 @@ do
       table.insert(queues, now)
       self.client:jtick(n_keys, self.keys.board, self.keys.schedule, unpack(queues))
       return n_queues
+    end,
+    respond = function(queue, command)
+      queue = self:queues(queue)
+      return queue:listen(function(meta)
+        if string.match(command, '{payload}') then
+          command = string.gsub(command, '{payload}', payload)
+          return os.execute(command)
+        else
+          command = io.popen(command, 'w')
+          return command:write(meta)
+        end
+      end)
     end
   }
   _base_0.__index = _base_0
