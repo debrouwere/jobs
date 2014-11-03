@@ -14,5 +14,6 @@ install:
   - sudo luarocks install lua-cjson
   - sudo luarocks install redis-lua
   - sudo luarocks install luafilesystem
+  - sudo luarocks install luaposix
   ### - sudo luarocks install argparse
   - sudo luarocks install busted

@@ -16,6 +16,7 @@ dependencies = {
    "redis-lua ~> 2", 
    "luafilesystem ~> 1.6", 
    "argparse ~> 0.3", 
+   "luaposix ~> 32", 
    "busted ~> 2"
 }
 build = {
