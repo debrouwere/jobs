@@ -1,8 +1,11 @@
 local cjson = require('cjson')
 local connect = require('lib/client/connect')
-local timing = require('lib/utils/timing')
+local utils = require('lib/utils/init')
 local parse
 parse = function(str, format)
+  if format == nil then
+    format = 'plain'
+  end
   if (type(str)) == 'string' then
     local _exp_0 = format
     if 'json' == _exp_0 then
@@ -25,34 +28,29 @@ do
       local meta = self.client:jpop(1, self.key)
       return parse(meta, format)
     end,
-    listen = function(self)
+    listen = function(self, ...)
       local format, listener
-      local _exp_0 = #args
+      local _exp_0 = #arg
       if 1 == _exp_0 then
         format = 'plain'
         do
-          local _obj_0 = args
+          local _obj_0 = arg
           listener = _obj_0[1]
         end
       elseif 2 == _exp_0 then
         do
-          local _obj_0 = args
+          local _obj_0 = arg
           format, listener = _obj_0[1], _obj_0[2]
         end
       else
         error('listen takes two arguments: format and listener')
       end
-      local last = os.time()
-      while true do
-        local now = os.time()
-        if now > last then
-          last = now
-          local popped = self:pop(format)
-          if popped then
-            listener(popped)
-          end
+      return utils.forever(function()
+        local popped = self:pop(format)
+        if popped then
+          return listener(popped)
         end
-      end
+      end)
     end
   }
   _base_0.__index = _base_0
@@ -102,7 +100,7 @@ do
           end
         end
       end
-      local interval = timing.seconds(schedule)
+      local interval = utils.timing.seconds(schedule)
       if schedule["repeat"] then
         error('not implemented yet')
       end
@@ -122,6 +120,9 @@ do
       return error('not implemented yet')
     end,
     show = function(self, id, format)
+      if format == nil then
+        format = 'plain'
+      end
       local meta = self.client:jget(1, self.keys.board, id)
       return parse(meta, format)
     end,
@@ -148,15 +149,20 @@ do
       self.client:jtick(n_keys, self.keys.board, self.keys.schedule, unpack(queues))
       return n_queues
     end,
-    respond = function(queue, command)
-      queue = self:queues(queue)
+    respond = function(self, queue, command)
+      queue = self:queue(queue)
+      local inline = string.match(command, '{payload}')
+      local stdin = not inline
+      if inline then
+        command = string.gsub(command, '{payload}', payload)
+      end
       return queue:listen(function(meta)
-        if string.match(command, '{payload}') then
-          command = string.gsub(command, '{payload}', payload)
-          return os.execute(command)
+        if stdin then
+          local process = io.popen(command, 'w')
+          process:write(meta)
+          return process:close()
         else
-          command = io.popen(command, 'w')
-          return command:write(meta)
+          return os.execute(command)
         end
       end)
     end

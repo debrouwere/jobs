@@ -60,7 +60,13 @@ else
             multiplier = math.pow lambda, n
             interval = interval * multiplier
 
-        last_run + interval
+        -- while the desired behavior can differ depending 
+        -- on job type, generally we want to catch up on 
+        -- jobs that are behind by only scheduling things
+        -- in the future
+        skips = math.floor (now - last_run) / interval
+        skips = math.max 1, skips
+        last_run + skips * interval
 
     -- this script can also be run as an include
     -- from within `jset`, `jsetnx` and `jtick`, 

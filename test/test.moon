@@ -182,11 +182,11 @@ describe 'low-level interface', ->
         assert.true (tonumber next_run) <= now
 
         pushed = store\jtick 3, board, schedule, queue, earlier
-        task = store\lpop queue
+        task = store\rpop queue
         assert.equals (tonumber pushed), 0
         assert.falsy task
         pushed = store\jtick 3, board, schedule, queue, now
-        task = store\lpop queue
+        task = store\rpop queue
         assert.equals (tonumber pushed), 1
         meta = cjson.decode task
         assert.truthy task
@@ -260,6 +260,7 @@ describe 'high-level interface', ->
         board\put name, runner, payload, params
         plain = board\show name
         t = board\show name, 'json'
+
         assert.equals (type plain), 'string'
         assert.equals (type t), 'table'
 

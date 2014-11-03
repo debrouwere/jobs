@@ -1,6 +1,0 @@
-local jobs = require('src/jobs')
-local store = jobs.connect()
-store:set('test', 'hello world')
-print(store:get('test'))
-store:jset('first-job', 'shell', 'echo hello', '5000')
-return print(store:hget('jobs', 'first-job'))

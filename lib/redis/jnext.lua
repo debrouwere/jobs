@@ -17,7 +17,9 @@ tick = function(start, last_run, now, interval, lambda, step)
     local multiplier = math.pow(lambda, n)
     interval = interval * multiplier
   end
-  return last_run + interval
+  local skips = math.floor((now - last_run) / interval)
+  skips = math.max(1, skips)
+  return last_run + skips * interval
 end
 local board, schedule
 do

@@ -27,6 +27,11 @@ for id in *jobs
     {:runner} = cjson.decode meta
 
     if queue = filters[runner]
+        -- right now queues are lists; this 
+        -- has the advantage that jobs don't 
+        -- disappear but the disadvantage that
+        -- when a runner gets behind or 
+        -- crashes, jobs will keep piling up
         redis.call 'lpush', queue, meta
 
         KEYS = KEYS

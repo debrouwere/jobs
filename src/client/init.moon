@@ -2,9 +2,9 @@
 
 cjson = require 'cjson'
 connect = require 'lib/client/connect'
-timing = require 'lib/utils/timing'
+utils = require 'lib/utils/init'
 
-parse = (str, format) ->
+parse = (str, format='plain') ->
     if (type str) == 'string'
         switch format
             when 'json'
@@ -28,28 +28,24 @@ class Queue
         meta = @client\jpop 1, @key
         parse meta, format
 
-    listen: =>
+    listen: (...) =>
         local format, listener
 
-        switch #args
+        switch #arg
             when 1
                 format = 'plain'
-                {listener} = args
+                {listener} = arg
             when 2
-                {format, listener} = args
+                {format, listener} = arg
             else
                 error 'listen takes two arguments: format and listener'
 
-        last = os.time()
-        while true
-            -- pop at most once a second
-            now = os.time()
-            if now > last
-                last = now
-                popped = @pop format
-                -- there might be no pending jobs
-                if popped
-                    listener popped
+        utils.forever ->
+            -- there might be no pending jobs, but if there
+            -- is one, pass it to the listener
+            popped = @pop format
+            if popped
+                listener popped
 
 
 class Board
@@ -67,7 +63,7 @@ class Board
         nx = options.update == false
         set = if nx then @client\jsetnx else @client\jset
 
-        interval = timing.seconds schedule
+        interval = utils.timing.seconds schedule
 
         -- TODO: ideally also support `duration`
         -- and `repeat` shortcuts for start/stop
@@ -96,7 +92,7 @@ class Board
     schedule: (id, runner, payload) =>
         error 'not implemented yet'
 
-    show: (id, format) =>
+    show: (id, format='plain') =>
         meta = @client\jget 1, @keys.board, id
         parse meta, format
 
@@ -128,15 +124,21 @@ class Board
 
         n_queues
 
-    respond: (queue, command) ->
-        queue = @queues queue
+    respond: (queue, command) =>
+        queue = @queue queue
+
+        inline = string.match command, '{payload}'
+        stdin = not inline
+        if inline
+            command = string.gsub command, '{payload}', payload
+
         queue\listen (meta) ->
-            if string.match command, '{payload}'
-                command = string.gsub command, '{payload}', payload
-                os.execute command
+            if stdin
+                process = io.popen command, 'w'
+                process\write meta
+                process\close!
             else
-                command = io.popen command, 'w'
-                command\write meta
+                os.execute command
 
 
 return {

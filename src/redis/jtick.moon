@@ -27,6 +27,11 @@ for id in *jobs
     {:runner} = cjson.decode meta
 
     if queue = filters[runner]
+        -- right now queues are lists; this 
+        -- has the advantage that jobs don't 
+        -- disappear but the disadvantage that
+        -- when a runner gets behind or 
+        -- crashes, jobs will keep piling up
         redis.call 'lpush', queue, meta
 
         KEYS = KEYS
@@ -58,7 +63,13 @@ for id in *jobs
                 multiplier = math.pow lambda, n
                 interval = interval * multiplier
 
-            last_run + interval
+            -- while the desired behavior can differ depending 
+            -- on job type, generally we want to catch up on 
+            -- jobs that are behind by only scheduling things
+            -- in the future
+            skips = math.floor (now - last_run) / interval
+            skips = math.max 1, skips
+            last_run + skips * interval
 
         -- this script can also be run as an include
         -- from within `jset`, `jsetnx` and `jtick`, 

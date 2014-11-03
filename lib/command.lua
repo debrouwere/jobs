@@ -1,14 +1,11 @@
 local argparse = require('argparse')
 local jobs = require('lib/client/init')
 local initialize = require('lib/init')
-local respond = require('lib/respond')
-local utils = require('lib/utils/utils')
-local timing = require('lib/utils/timing')
+local utils = require('lib/utils/init')
 local parser = argparse()
 do
   parser:name('jobs')
-  parser:description(utils.dedent([[        Hello there chaps!
-        Here's a sort of description of sorts.
+  parser:description(utils.dedent([[        Jobs is a next-generation cron.
     ]]))
 end
 local init = parser:command('init')
@@ -17,7 +14,7 @@ local remove = parser:command('remove')
 local create = parser:command('create')
 local put = parser:command('put')
 local tick = parser:command('tick')
-respond = parser:command('respond')
+local respond = parser:command('respond')
 local _list_0 = {
   show,
   remove
@@ -91,7 +88,13 @@ else
         return board:respond(arguments.type, arguments.executable)
       else
         if arguments.tick then
-          return error('not implemented yet')
+          return utils.forever((function()
+            local _base_0 = board
+            local _fn_0 = _base_0.tick
+            return function(...)
+              return _fn_0(_base_0, ...)
+            end
+          end)())
         else
           if arguments.register then
             return error('not implemented yet')

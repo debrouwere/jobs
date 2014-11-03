@@ -1,17 +1,14 @@
 argparse = require 'argparse'
 jobs = require 'lib/client/init'
 initialize = require 'lib/init'
-respond = require 'lib/respond'
-utils = require 'lib/utils/utils'
-timing = require 'lib/utils/timing'
+utils = require 'lib/utils/init'
 
 parser = argparse!
 
 with parser
     \name 'jobs'
     \description utils.dedent [[
-        Hello there chaps!
-        Here's a sort of description of sorts.
+        Jobs is a next-generation cron.
     ]]
 
 init     = parser\command 'init'
@@ -93,7 +90,7 @@ else if arguments.respond
     board\respond arguments.type, arguments.executable
 
 else if arguments.tick
-    error 'not implemented yet'
+    utils.forever board\tick
 
 else if arguments.register
     error 'not implemented yet'
