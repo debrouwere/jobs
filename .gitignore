@@ -25,3 +25,7 @@ sandbox
 
 # Ideas that need to be fleshed out
 roadmap
+
+# logs
+
+*.log
