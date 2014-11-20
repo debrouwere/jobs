@@ -9,7 +9,6 @@ description = {
    license = "ISC"
 }
 dependencies = {
-   "lua ~> 5.1", 
    "moonscript ~> 0.2.6", 
    "luasocket ~> 3", 
    "lua-cjson ~> 2", 

@@ -13,7 +13,7 @@ return ->
     commands_directory = "#{here}/../lib/redis"
 
     for file in lfs.dir commands_directory
-        if name = string.match file, '(.+)\.lua$'
+        if name = string.match file, '(.+)%.lua$'
             table.insert scriptfiles, name
 
     for name in *scriptfiles

@@ -9,7 +9,7 @@ return function()
   local commands_directory = tostring(here) .. "/../lib/redis"
   for file in lfs.dir(commands_directory) do
     do
-      local name = string.match(file, '(.+)\.lua$')
+      local name = string.match(file, '(.+)%.lua$')
       if name then
         table.insert(scriptfiles, name)
       end

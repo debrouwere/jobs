@@ -12,7 +12,7 @@ prepend = (pre, s) ->
     string.gsub s, '([^\n]+)', pre .. '%1'
 
 for script in lfs.dir root
-    if name = string.match script, '(.+)\.tpl$'
+    if name = string.match script, '(.+)%.tpl$'
         table.insert templates, name
 
 for name in *templates
@@ -21,7 +21,7 @@ for name in *templates
 
     template = source\read '*all'
     indentation, comment, dependency = string.match template, 
-        "\n?( *)(\-*)require ['\"]([^'\"]+)['\"]"
+        "\n?( *)(%-*)require ['\"]([^'\"]+)['\"]"
 
     is_comment = (string.len comment) != 0
 
