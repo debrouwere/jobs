@@ -4,7 +4,7 @@ services:
   - redis-server
 
 install:
-  - sudo export ax_cv_lua_header_version=5.1
+  - export ax_cv_lua_header_version=5.1
   - sudo apt-get install lua5.2 liblua5.2-dev
   # luarocks and accoutrements
   - sudo apt-get install luarocks
