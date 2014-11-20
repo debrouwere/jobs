@@ -4,6 +4,7 @@ services:
   - redis-server
 
 install:
+  - sudo export ax_cv_lua_header_version=5.1
   - sudo apt-get install lua5.2 liblua5.2-dev
   # luarocks and accoutrements
   - sudo apt-get install luarocks
@@ -14,6 +15,6 @@ install:
   - sudo luarocks install lua-cjson
   - sudo luarocks install redis-lua
   - sudo luarocks install luafilesystem
-  - sudo luarocks install luaposix
+  - sudo luarocks install luaposix 
   ### - sudo luarocks install argparse
   - sudo luarocks install busted
