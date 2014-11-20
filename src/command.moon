@@ -11,13 +11,13 @@ with parser
         Jobs is a next-generation cron.
     ]]
 
-init     = parser\command 'init'
-show     = parser\command 'show'
-remove   = parser\command 'remove'
-create   = parser\command 'create'
-put      = parser\command 'put'
-tick     = parser\command 'tick'
-respond  = parser\command 'respond'
+show     = parser\command('show')\description('show job details')
+remove   = parser\command('remove')\description('remove a job')
+create   = parser\command('create')\description('create a job but do not update if it already exists')
+put      = parser\command('put')\description('create or update a job')
+respond  = parser\command('respond')\description('listen to tasks of a specific type')
+init     = parser\command('init')\description('initialize redis with jobs extensions (administrative)')
+tick     = parser\command('tick')\description('put jobs that need to run on the queue (administrative)')
 -- register = parser\command 'register'
 -- board    = parser\command 'board'
 -- pop      = parser\command 'pop'
