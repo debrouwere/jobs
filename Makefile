@@ -13,8 +13,10 @@ watch:
 test: build
 	busted test/test.moon
 
-test.runners:
+test.runners: build
+	# can be run with `make test.runners`
 	./bin/jobs init
-	./bin/jobs put ticker console "hello world" --seconds 5
+	./bin/jobs put ticker log "hello world" --seconds 5
 	./bin/jobs tick
-	./bin/jobs respond console ./bin/jobs-console-runner
+	# run this in a separate shell
+	./bin/jobs respond log ./bin/jobs-log-runner

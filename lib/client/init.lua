@@ -30,18 +30,15 @@ do
     end,
     listen = function(self, ...)
       local format, listener
-      local _exp_0 = #arg
+      local arguments = {
+        ...
+      }
+      local _exp_0 = #arguments
       if 1 == _exp_0 then
         format = 'plain'
-        do
-          local _obj_0 = arg
-          listener = _obj_0[1]
-        end
+        listener = arguments[1]
       elseif 2 == _exp_0 then
-        do
-          local _obj_0 = arg
-          format, listener = _obj_0[1], _obj_0[2]
-        end
+        format, listener = arguments[1], arguments[2]
       else
         error('listen takes two arguments: format and listener')
       end

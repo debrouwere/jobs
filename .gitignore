@@ -20,12 +20,10 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
-# Sandbox code
-sandbox
-
-# Ideas that need to be fleshed out
-roadmap
-
 # logs
-
+*.rdb
 *.log
+
+# sandbox
+roadmap
+sandbox

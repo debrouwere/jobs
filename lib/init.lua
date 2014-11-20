@@ -3,6 +3,7 @@ local redis = require('redis')
 return function()
   local scriptfiles = { }
   local scripts = { }
+  local evalshas = { }
   local commands = { }
   local source = debug.getinfo(1).source
   local here = string.match(source, '^@(.+)/.+$')
@@ -22,12 +23,11 @@ return function()
     file:close()
   end
   local store = redis.connect('127.0.0.1', 6379)
-  local evalshas = store:pipeline(function(pipeline)
-    for _index_0 = 1, #scripts do
-      local script = scripts[_index_0]
-      pipeline:script('load', script)
-    end
-  end)
+  for _index_0 = 1, #scripts do
+    local script = scripts[_index_0]
+    local sha = store:script('load', script)
+    table.insert(evalshas, sha)
+  end
   for i, sha in ipairs(evalshas) do
     local name = scriptfiles[i]
     commands[name] = sha

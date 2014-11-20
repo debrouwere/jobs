@@ -5,6 +5,7 @@ redis = require 'redis'
 return ->
     scriptfiles = {}
     scripts = {}
+    evalshas = {}
     commands = {}
 
     -- find and load command scripts
@@ -25,9 +26,12 @@ return ->
     -- TODO: make host and port configurable
     store = redis.connect '127.0.0.1', 6379
 
-    evalshas = store\pipeline (pipeline) ->
-        for script in *scripts
-            pipeline\script 'load', script
+    -- previously we used redis-lua pipelining for loading
+    -- the scripts, but this appears broken on Lua 5.2
+    -- (last checked 2014-11-20)
+    for script in *scripts
+        sha = store\script 'load', script
+        table.insert evalshas, sha
 
     for i, sha in ipairs evalshas
         name = scriptfiles[i]

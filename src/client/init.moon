@@ -30,13 +30,14 @@ class Queue
 
     listen: (...) =>
         local format, listener
+        arguments = {...}
 
-        switch #arg
+        switch #arguments
             when 1
                 format = 'plain'
-                {listener} = arg
+                {listener} = arguments
             when 2
-                {format, listener} = arg
+                {format, listener} = arguments
             else
                 error 'listen takes two arguments: format and listener'
 
