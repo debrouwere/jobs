@@ -10,5 +10,5 @@ install:
   - sudo luarocks install luasocket
   - sudo luarocks install luasec OPENSSL_LIBDIR=/usr/lib/x86_64-linux-gnu
   # app dependencies
-  - sudo luarocks install jobs-0.1.0-0.rockspec
+  - sudo luarocks install rockspec/jobs-scm-1.rockspec
 
