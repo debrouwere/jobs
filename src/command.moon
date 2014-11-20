@@ -6,7 +6,7 @@ utils = require 'lib/utils/init'
 parser = argparse!
 
 with parser
-    \name 'jobs'
+    \name 'job'
     \description utils.dedent [[
         Jobs is a next-generation cron.
     ]]
