@@ -11,4 +11,3 @@ install:
   - sudo luarocks install luasec OPENSSL_LIBDIR=/usr/lib/x86_64-linux-gnu
   # app dependencies
   - sudo luarocks install rockspec/jobs-scm-1.rockspec
-

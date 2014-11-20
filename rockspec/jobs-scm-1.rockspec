@@ -29,9 +29,9 @@ build = {
    copy_directories = { "bin", "lib", "test" }, 
    install = {
       bin = {
-         "bin/jobs", 
-         "bin/jobs-log-runner", 
-         "bin/jobs-shell-runner"
+         "bin/job", 
+         "bin/job-log-runner", 
+         "bin/job-shell-runner"
       }
    }
 }
