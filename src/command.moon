@@ -65,13 +65,15 @@ arguments = parser\parse!
 
 board = jobs.Board!
 
-if arguments.init
+
+if arguments.init or arguments.tick
     commands = initialize!
     print 'Loading Jobs commands into Redis.\n'
     print 'Loaded:\n'
     for name, sha in pairs commands
         print "  #{name}    \t(#{sha})"
     print ''
+
 
 if arguments.create or arguments.put
     update = if arguments.create then false else true
@@ -90,6 +92,7 @@ else if arguments.respond
     board\respond arguments.type, arguments.executable
 
 else if arguments.tick
+    print 'Starting the job clock.'
     utils.forever board\tick
 
 else if arguments.register

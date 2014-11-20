@@ -1,0 +1,14 @@
+redis:
+  image: redis
+
+server:
+  image: debrouwere/jobs
+  command: tick
+  links:
+    - redis
+
+runner:
+  image: debrouwere/jobs
+  command: respond log job-log-runner
+  links:
+    - redis

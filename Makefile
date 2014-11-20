@@ -6,6 +6,14 @@ build:
 	./utils/inline src/redis
 	cd src && moonc -t ../lib .
 
+build.stack.cloudformation:
+	yaml2json stack/stack.yml --indent 2 > stack/stack.json
+
+build.stack.docker:
+	docker build -t debrouwere/jobs .
+
+build.stack: build.stack.cloudformation build.stack.docker
+
 watch:
 	cd src && moonc -t ../lib -w .
 
@@ -15,7 +23,6 @@ test: build
 
 test.runners: build
 	# can be run with `make test.runners`
-	./bin/job init
 	./bin/job put ticker log "hello world" --seconds 5
 	./bin/job tick
 	# run this in a separate shell

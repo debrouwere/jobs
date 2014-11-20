@@ -4,7 +4,7 @@ local initialize = require('lib/init')
 local utils = require('lib/utils/init')
 local parser = argparse()
 do
-  parser:name('jobs')
+  parser:name('job')
   parser:description(utils.dedent([[        Jobs is a next-generation cron.
     ]]))
 end
@@ -57,7 +57,7 @@ do
 end
 local arguments = parser:parse()
 local board = jobs.Board()
-if arguments.init then
+if arguments.init or arguments.tick then
   local commands = initialize()
   print('Loading Jobs commands into Redis.\n')
   print('Loaded:\n')
@@ -88,6 +88,7 @@ else
         return board:respond(arguments.type, arguments.executable)
       else
         if arguments.tick then
+          print('Starting the job clock.')
           return utils.forever((function()
             local _base_0 = board
             local _fn_0 = _base_0.tick
