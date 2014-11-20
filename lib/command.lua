@@ -8,13 +8,13 @@ do
   parser:description(utils.dedent([[        Jobs is a next-generation cron.
     ]]))
 end
-local init = parser:command('init')
-local show = parser:command('show')
-local remove = parser:command('remove')
-local create = parser:command('create')
-local put = parser:command('put')
-local tick = parser:command('tick')
-local respond = parser:command('respond')
+local show = parser:command('show'):description('show job details')
+local remove = parser:command('remove'):description('remove a job')
+local create = parser:command('create'):description('create a job but do not update if it already exists')
+local put = parser:command('put'):description('create or update a job')
+local respond = parser:command('respond'):description('listen to tasks of a specific type')
+local init = parser:command('init'):description('initialize redis with jobs extensions (administrative)')
+local tick = parser:command('tick'):description('put jobs that need to run on the queue (administrative)')
 local _list_0 = {
   show,
   remove
