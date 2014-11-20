@@ -7,7 +7,6 @@ install:
   - sudo apt-get install lua5.1 liblua5.1-dev
   # luarocks and accoutrements
   - sudo apt-get install luarocks
-  - sudo luarocks install luasocket
   - sudo luarocks install luasec OPENSSL_LIBDIR=/usr/lib/x86_64-linux-gnu
   # app dependencies
-  - sudo luarocks install rockspec/jobs-scm-1.rockspec
+  - sudo ruarocks make rockspec/jobs-scm-1.rockspec
