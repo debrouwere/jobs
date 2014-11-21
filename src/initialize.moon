@@ -2,7 +2,7 @@ lfs = require 'lfs'
 redis = require 'redis'
 
 
-return ->
+return (...) ->
     scriptfiles = {}
     scripts = {}
     evalshas = {}
@@ -24,7 +24,7 @@ return ->
 
     -- load command scripts into redis
     -- TODO: make host and port configurable
-    store = redis.connect '127.0.0.1', 6379
+    store = redis.connect ...
 
     -- previously we used redis-lua pipelining for loading
     -- the scripts, but this appears broken on Lua 5.2
