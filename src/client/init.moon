@@ -1,6 +1,7 @@
 -- Jobs reference high-level client library
 
 cjson = require 'cjson'
+initialize = require 'lib/initialize'
 connect = require 'lib/client/connect'
 utils = require 'lib/utils/init'
 
@@ -143,6 +144,7 @@ class Board
 
 
 return {
+    initialize: initialize, 
     redis: {:connect}, 
     Board: Board, 
     Queue: Queue

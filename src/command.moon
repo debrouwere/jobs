@@ -1,6 +1,5 @@
 argparse = require 'argparse'
 jobs = require 'lib/client/init'
-initialize = require 'lib/init'
 utils = require 'lib/utils/init'
 
 parser = argparse!
@@ -22,6 +21,11 @@ tick     = parser\command('tick')\description('put jobs that need to run on the 
 -- board    = parser\command 'board'
 -- pop      = parser\command 'pop'
 -- next     = parser\command 'next'
+
+for command in *{show, remove, create, put, respond, init, tick}
+    with command
+        \option('-H', '--host')\description('the ip address to Redis')\default('127.0.0.1')
+        \option('-P', '--port')\description('the port to Redis')\default('6379')
 
 for command in *{show, remove}
     with command
@@ -61,13 +65,13 @@ with respond
     \argument('type')\description('What type of job to respond to.')
     \argument('executable')\description('The responding executable.')
 
-arguments = parser\parse!
 
-board = jobs.Board!
+arguments = parser\parse!
+board = jobs.Board 'jobs', arguments.host, arguments.port
 
 
 if arguments.init or arguments.tick
-    commands = initialize!
+    commands = jobs.initialize arguments.host, arguments.port
     print 'Loading Jobs commands into Redis.\n'
     print 'Loaded:\n'
     for name, sha in pairs commands
@@ -89,6 +93,7 @@ else if arguments.remove
     board\remove arguments.name
 
 else if arguments.respond
+    print "Responding to #{arguments.type} jobs."
     board\respond arguments.type, arguments.executable
 
 else if arguments.tick
