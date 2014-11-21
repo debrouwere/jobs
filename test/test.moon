@@ -1,7 +1,7 @@
 cjson = require 'cjson'
 redis = require 'redis'
 jobs = require 'client/init'
-initialize = require 'init'
+initialize = require 'initialize'
 
 
 -- The unit tests for the low-level interface try to tread
