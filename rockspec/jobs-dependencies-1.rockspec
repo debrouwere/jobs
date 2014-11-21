@@ -1,8 +1,12 @@
 -- TODO: once we have a stable release, stop 
 -- using master for the latest releases
+--
+-- This rockspec is equivalent to `jobs-scm`, 
+-- but doesn't include a build step, just
+-- installs dependencies.
 
 package = "jobs"
-version = "scm-1"
+version = "dependencies-1"
 source = {
    url = "https://github.com/debrouwere/jobs/archive/master.zip", 
    branch = "master"
@@ -24,13 +28,5 @@ dependencies = {
    "busted ~> 2"
 }
 build = {
-   type = "none", 
-   copy_directories = { "bin", "lib", "test" }, 
-   install = {
-      bin = {
-         "bin/job", 
-         "bin/job-log-runner", 
-         "bin/job-shell-runner"
-      }
-   }
+   type = "none"
 }
