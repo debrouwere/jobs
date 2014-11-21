@@ -1,0 +1,24 @@
+redis:
+  image: redis
+
+server:
+  image: debrouwere/jobs
+  command: tick --host redis
+  links:
+    - redis
+
+runner:
+  image: debrouwere/jobs
+  command: respond log job-log-runner --host redis
+  volumes:
+    - log:/var/log/jobs
+  links:
+    - redis
+    - server
+
+client:
+  image: debrouwere/jobs
+  command: put ticker log "hello world" --seconds 5 --host redis
+  links:
+    - redis
+    - server
