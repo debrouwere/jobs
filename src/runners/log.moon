@@ -5,7 +5,8 @@ input = io.read "*all"
 params = cjson.decode input
 {:payload} = params
 
-destination = lfs.currentdir() .. '/jobs.log'
+-- lfs.currentdir() .. '/jobs.log'
+destination = '/var/log/jobs/jobs.log'
 log = io.open destination, 'a'
 date = (os.date '%c')
 entry = "#{date} #{payload}\n"
