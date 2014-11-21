@@ -1,24 +1,26 @@
-redis:
+# TODO: guarantee persistence of data volume
+
+store:
   image: redis
 
 server:
   image: debrouwere/jobs
-  command: tick --host redis
+  command: tick --host store
   links:
-    - redis
+    - store
 
 runner:
   image: debrouwere/jobs
-  command: respond log job-log-runner --host redis
+  command: respond log job-log-runner --host store
   volumes:
     - log:/var/log/jobs
   links:
-    - redis
+    - store
     - server
 
 client:
   image: debrouwere/jobs
-  command: put ticker log "hello world" --seconds 5 --host redis
+  command: put ticker log "hello world" --seconds 5 --host store
   links:
-    - redis
+    - store
     - server

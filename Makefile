@@ -7,7 +7,7 @@ build:
 	cd src && moonc -t ../lib .
 
 stack.cloudformation:
-	yaml2json stack/stack.yml --indent 2 > stack/stack.json
+	yaml2json examples/stack/stack.yml --indent 2 > examples/stack/stack.json
 
 stack.docker:
 	docker build -t debrouwere/jobs .
