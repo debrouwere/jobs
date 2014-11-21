@@ -1,4 +1,5 @@
 local cjson = require('cjson')
+local initialize = require('lib/initialize')
 local connect = require('lib/client/connect')
 local utils = require('lib/utils/init')
 local parse
@@ -194,6 +195,7 @@ do
   Board = _class_0
 end
 return {
+  initialize = initialize,
   redis = {
     connect = connect
   },

@@ -1,6 +1,6 @@
 local lfs = require('lfs')
 local redis = require('redis')
-return function()
+return function(...)
   local scriptfiles = { }
   local scripts = { }
   local evalshas = { }
@@ -22,7 +22,7 @@ return function()
     table.insert(scripts, file:read('*all'))
     file:close()
   end
-  local store = redis.connect('127.0.0.1', 6379)
+  local store = redis.connect(...)
   for _index_0 = 1, #scripts do
     local script = scripts[_index_0]
     local sha = store:script('load', script)

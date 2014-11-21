@@ -1,6 +1,5 @@
 local argparse = require('argparse')
 local jobs = require('lib/client/init')
-local initialize = require('lib/init')
 local utils = require('lib/utils/init')
 local parser = argparse()
 do
@@ -17,20 +16,36 @@ local init = parser:command('init'):description('initialize redis with jobs exte
 local tick = parser:command('tick'):description('put jobs that need to run on the queue (administrative)')
 local _list_0 = {
   show,
-  remove
+  remove,
+  create,
+  put,
+  respond,
+  init,
+  tick
 }
 for _index_0 = 1, #_list_0 do
   local command = _list_0[_index_0]
   do
-    command:argument('name')
+    command:option('-H', '--host'):description('the ip address to Redis'):default('127.0.0.1')
+    command:option('-P', '--port'):description('the port to Redis'):default('6379')
   end
 end
 local _list_1 = {
-  create,
-  put
+  show,
+  remove
 }
 for _index_0 = 1, #_list_1 do
   local command = _list_1[_index_0]
+  do
+    command:argument('name')
+  end
+end
+local _list_2 = {
+  create,
+  put
+}
+for _index_0 = 1, #_list_2 do
+  local command = _list_2[_index_0]
   do
     command:argument('name'):description('A job identifier; can be any string.')
     command:argument('runner'):description('Which job runner to use, e.g. shell.')
@@ -56,9 +71,9 @@ do
   respond:argument('executable'):description('The responding executable.')
 end
 local arguments = parser:parse()
-local board = jobs.Board()
+local board = jobs.Board('jobs', arguments.host, arguments.port)
 if arguments.init or arguments.tick then
-  local commands = initialize()
+  local commands = jobs.initialize(arguments.host, arguments.port)
   print('Loading Jobs commands into Redis.\n')
   print('Loaded:\n')
   for name, sha in pairs(commands) do
@@ -85,6 +100,7 @@ else
       return board:remove(arguments.name)
     else
       if arguments.respond then
+        print("Responding to " .. tostring(arguments.type) .. " jobs.")
         return board:respond(arguments.type, arguments.executable)
       else
         if arguments.tick then

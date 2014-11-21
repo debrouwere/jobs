@@ -4,7 +4,7 @@ local input = io.read("*all")
 local params = cjson.decode(input)
 local payload
 payload = params.payload
-local destination = lfs.currentdir() .. '/jobs.log'
+local destination = '/var/log/jobs/jobs.log'
 local log = io.open(destination, 'a')
 local date = (os.date('%c'))
 local entry = tostring(date) .. " " .. tostring(payload) .. "\n"
