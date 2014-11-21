@@ -1,1 +1,6 @@
 #!/usr/bin/env bash
+
+# 
+# Please do not remove this file. It is used by Travis 
+# for continuous integration.
+# 
