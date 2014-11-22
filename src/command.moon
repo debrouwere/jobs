@@ -65,13 +65,16 @@ with respond
     \argument('type')\description('What type of job to respond to.')
     \argument('executable')\description('The responding executable.')
 
-
 arguments = parser\parse!
-board = jobs.Board 'jobs', arguments.host, arguments.port
+
+host = arguments.host or (os.getenv 'JOBS_REDIS_HOST') or '127.0.0.1'
+port = arguments.port or (os.getenv 'JOBS_REDIS_PORT') or '6379'
+
+board = jobs.Board 'jobs', host, port
 
 
 if arguments.init or arguments.tick
-    commands = jobs.initialize arguments.host, arguments.port
+    commands = jobs.initialize host, port
     print 'Loading Jobs commands into Redis.\n'
     print 'Loaded:\n'
     for name, sha in pairs commands

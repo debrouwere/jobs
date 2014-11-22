@@ -3,7 +3,7 @@
 store:
   image: redis
 
-server:
+scheduler:
   image: debrouwere/jobs
   command: tick --host store
   links:
@@ -16,11 +16,11 @@ runner:
     - log:/var/log/jobs
   links:
     - store
-    - server
+    - scheduler
 
 client:
   image: debrouwere/jobs
   command: put ticker log "hello world" --seconds 5 --host store
   links:
     - store
-    - server
+    - scheduler

@@ -6,14 +6,8 @@ build:
 	./utils/inline src/redis
 	cd src && moonc -t ../lib .
 
-stack.cloudformation:
-	yaml2json examples/stack/stack.yml --indent 2 > examples/stack/stack.json
-
-stack.docker:
+image:
 	docker build -t debrouwere/jobs .
-
-.PHONY: stack
-stack: build stack.cloudformation stack.docker
 
 watch:
 	cd src && moonc -t ../lib -w .

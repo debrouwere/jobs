@@ -71,9 +71,11 @@ do
   respond:argument('executable'):description('The responding executable.')
 end
 local arguments = parser:parse()
-local board = jobs.Board('jobs', arguments.host, arguments.port)
+local host = arguments.host or (os.getenv('JOBS_REDIS_HOST')) or '127.0.0.1'
+local port = arguments.port or (os.getenv('JOBS_REDIS_PORT')) or '6379'
+local board = jobs.Board('jobs', host, port)
 if arguments.init or arguments.tick then
-  local commands = jobs.initialize(arguments.host, arguments.port)
+  local commands = jobs.initialize(host, port)
   print('Loading Jobs commands into Redis.\n')
   print('Loaded:\n')
   for name, sha in pairs(commands) do

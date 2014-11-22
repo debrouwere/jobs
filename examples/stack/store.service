@@ -9,9 +9,12 @@
 Description=job store
 
 [Service]
+Restart=always
+RestartSec=10
+TimeoutStartSec=600
 EnvironmentFile=/etc/environment
 ExecStartPre=/usr/bin/docker pull redis
-ExecStart=/usr/bin/docker run --name store --rm redis
-ExecStartPost=/usr/bin/etcdctl set /jobs/store ${COREOS_PUBLIC_IPV4}
+ExecStart=/usr/bin/docker run --name store -p 6379:6379 --rm redis
+ExecStartPost=/usr/bin/etcdctl set /jobs/store ${COREOS_PRIVATE_IPV4}
 ExecStop=/usr/bin/docker kill store
 ExecStopPost=/usr/bin/etcdctl rm /jobs/store
