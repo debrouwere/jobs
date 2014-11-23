@@ -1,8 +1,13 @@
-all: build
+all: lib
 
+build: lib
+
+# Travis emulates a C build process, which 
+# requires a `make install` step to be present
 install:
 
-build:
+lib: $(wildcard src/*) $(wildcard src/*/*)
+	rm -r lib
 	./utils/inline src/redis
 	cd src && moonc -t ../lib .
 
