@@ -6,7 +6,7 @@ build:
 	./utils/inline src/redis
 	cd src && moonc -t ../lib .
 
-image:
+image: build
 	docker build -t debrouwere/jobs .
 
 watch:

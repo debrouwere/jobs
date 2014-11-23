@@ -1,7 +1,6 @@
 lfs = require 'lfs'
 redis = require 'redis'
 
-
 return (...) ->
     scriptfiles = {}
     scripts = {}

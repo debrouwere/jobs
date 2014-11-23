@@ -3,22 +3,19 @@ Description=job runner
 After=scheduler.service
 
 [Service]
-Restart=always
-RestartSec=10
+;Restart=always
+;RestartSec=10
 TimeoutStartSec=600
 EnvironmentFile=/etc/environment
 ExecStartPre=/usr/bin/docker pull debrouwere/jobs
-ExecStart=/usr/bin/docker run \
-    --name scheduler \
-    --environment JOBS_REDIS_HOST=`etcdctl get /jobs/store` \
+ExecStart=/usr/bin/bash -c "/usr/bin/docker run \
+    --name runner.%i \
+    --env JOBS_REDIS_HOST=`etcdctl get /jobs/store` \
     --rm debrouwere/jobs \
-    respond shell job-shell-runner
+    job respond shell job-shell-runner"
 ExecStartPost=/usr/bin/etcdctl set /jobs/runners/%i ${COREOS_PRIVATE_IPV4}:%i
 ExecStop=/usr/bin/docker kill runner
 ExecStopPost=/usr/bin/etcdctl rm /jobs/runners/%i
 
 [X-Fleet]
-Conflicts=runner@%i.service
-
-
-/usr/bin/docker run --name runner.test --rm debrouwere/jobs respond shell job-shell-runner --host $(etcdctl get /jobs/store)
+Conflicts=runner@*.service

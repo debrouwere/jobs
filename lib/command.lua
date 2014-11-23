@@ -26,8 +26,8 @@ local _list_0 = {
 for _index_0 = 1, #_list_0 do
   local command = _list_0[_index_0]
   do
-    command:option('-H', '--host'):description('the ip address to Redis'):default('127.0.0.1')
-    command:option('-P', '--port'):description('the port to Redis'):default('6379')
+    command:option('-H', '--host'):description('the ip address to Redis')
+    command:option('-P', '--port'):description('the port to Redis')
   end
 end
 local _list_1 = {

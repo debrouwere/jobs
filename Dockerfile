@@ -24,5 +24,3 @@ RUN luarocks make /jobs/rockspec/jobs-dependencies-1.rockspec
 COPY . /jobs
 WORKDIR /jobs
 RUN luarocks make rockspec/jobs-scm-1.rockspec
-
-ENTRYPOINT ["job"]

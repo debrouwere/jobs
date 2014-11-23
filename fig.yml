@@ -5,13 +5,13 @@ store:
 
 scheduler:
   image: debrouwere/jobs
-  command: tick --host store
+  command: job tick --host store
   links:
     - store
 
 runner:
   image: debrouwere/jobs
-  command: respond log job-log-runner --host store
+  command: job respond log job-log-runner --host store
   volumes:
     - log:/var/log/jobs
   links:
@@ -20,7 +20,7 @@ runner:
 
 client:
   image: debrouwere/jobs
-  command: put ticker log "hello world" --seconds 5 --host store
+  command: job put ticker log "hello world" --seconds 5 --host store
   links:
     - store
     - scheduler

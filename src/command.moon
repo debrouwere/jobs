@@ -24,8 +24,8 @@ tick     = parser\command('tick')\description('put jobs that need to run on the 
 
 for command in *{show, remove, create, put, respond, init, tick}
     with command
-        \option('-H', '--host')\description('the ip address to Redis')\default('127.0.0.1')
-        \option('-P', '--port')\description('the port to Redis')\default('6379')
+        \option('-H', '--host')\description('the ip address to Redis')
+        \option('-P', '--port')\description('the port to Redis')
 
 for command in *{show, remove}
     with command
