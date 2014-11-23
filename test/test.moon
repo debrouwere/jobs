@@ -289,3 +289,9 @@ describe 'high-level interface', ->
             hours: 2
 
         assert.equals (timing.seconds time), 7263
+
+    it 'can dump a representation of the schedule', ->
+        board\put name, runner, payload, params
+        dump = board\dump!
+        assert.truthy dump.jobs[name]
+        assert.equals dump.jobs[name].interval, 5

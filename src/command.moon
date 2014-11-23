@@ -1,3 +1,5 @@
+cjson = require 'cjson'
+yaml = require 'yaml'
 argparse = require 'argparse'
 jobs = require 'lib/client/init'
 utils = require 'lib/utils/init'
@@ -11,6 +13,7 @@ with parser
     ]]
 
 show     = parser\command('show')\description('show job details')
+dump     = parser\command('dump')\description('dump a representation of the entire job board')
 remove   = parser\command('remove')\description('remove a job')
 create   = parser\command('create')\description('create a job but do not update if it already exists')
 put      = parser\command('put')\description('create or update a job')
@@ -26,6 +29,10 @@ for command in *{show, remove, create, put, respond, init, tick}
     with command
         \option('-H', '--host')\description('the ip address to Redis')
         \option('-P', '--port')\description('the port to Redis')
+
+for command in *{show, dump}
+    with command
+        \option('-f', '--format')\description('the format to output to (yaml, json)')\default('yaml')
 
 for command in *{show, remove}
     with command
@@ -90,7 +97,26 @@ if arguments.create or arguments.put
         arguments.runner, arguments.payload, arguments, options
 
 else if arguments.show
-    print board\show arguments.name
+    meta = board\show arguments.name
+    switch arguments.format
+        when 'json'
+            print meta
+        when 'yaml'
+            meta = cjson.decode meta
+            print yaml.dump meta
+        else
+            error 'format should be one of: yaml, json'
+
+else if arguments.dump
+    dump = board\dump!
+
+    switch arguments.format
+        when 'json'
+            print cjson.encode dump
+        when 'yaml'
+            print yaml.dump dump
+        else
+            error 'format should be one of: yaml, json'
 
 else if arguments.remove
     board\remove arguments.name

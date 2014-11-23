@@ -62,6 +62,8 @@ class Board
         @client = connect ...
 
     put: (id, runner, payload, schedule, options={}) =>
+        now = os.time()
+
         nx = options.update == false
         set = if nx then @client\jsetnx else @client\jset
 
@@ -72,9 +74,7 @@ class Board
         if schedule.repeat
             error 'not implemented yet'
         if schedule.duration
-            error 'not implemented yet'
-
-        now = os.time()
+            schedule.stop = (schedule.start or now) + schedule.duration
         
         next_run = set 3, @keys.board, @keys.schedule, @keys.registry, 
             now, 
@@ -97,6 +97,17 @@ class Board
     show: (id, format='plain') =>
         meta = @client\jget 1, @keys.board, id
         parse meta, format
+
+    dump: =>
+        runners = @client\hgetall @keys.registry
+        jobs = @client\hgetall @keys.board
+        out = {}
+        out.runners = runners
+        out.jobs = {}
+        for id, serialized_meta in pairs(jobs)
+            meta = cjson.decode serialized_meta
+            out.jobs[id] = meta
+        out
 
     remove: (id) =>
         n_removed = @client\jdel 2, @keys.board, @keys.schedule, id

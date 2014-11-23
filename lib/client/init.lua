@@ -79,6 +79,7 @@ do
       if options == nil then
         options = { }
       end
+      local now = os.time()
       local nx = options.update == false
       local set
       if nx then
@@ -103,9 +104,8 @@ do
         error('not implemented yet')
       end
       if schedule.duration then
-        error('not implemented yet')
+        schedule.stop = (schedule.start or now) + schedule.duration
       end
-      local now = os.time()
       local next_run = set(3, self.keys.board, self.keys.schedule, self.keys.registry, now, id, runner, payload, interval, schedule.start, schedule.stop, schedule.lambda, schedule.step)
       return tonumber(next_run)
     end,
@@ -123,6 +123,18 @@ do
       end
       local meta = self.client:jget(1, self.keys.board, id)
       return parse(meta, format)
+    end,
+    dump = function(self)
+      local runners = self.client:hgetall(self.keys.registry)
+      local jobs = self.client:hgetall(self.keys.board)
+      local out = { }
+      out.runners = runners
+      out.jobs = { }
+      for id, serialized_meta in pairs(jobs) do
+        local meta = cjson.decode(serialized_meta)
+        out.jobs[id] = meta
+      end
+      return out
     end,
     remove = function(self, id)
       local n_removed = self.client:jdel(2, self.keys.board, self.keys.schedule, id)
