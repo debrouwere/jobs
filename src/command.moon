@@ -25,10 +25,11 @@ tick     = parser\command('tick')\description('put jobs that need to run on the 
 -- pop      = parser\command 'pop'
 -- next     = parser\command 'next'
 
-for command in *{show, remove, create, put, respond, init, tick}
+for command in *{show, dump, remove, create, put, respond, init, tick}
     with command
         \option('-H', '--host')\description('the ip address to Redis')
         \option('-P', '--port')\description('the port to Redis')
+        \flag('-S', '--stdin')\description('accept configuration over standard input')
 
 for command in *{show, dump}
     with command
@@ -74,11 +75,20 @@ with respond
 
 arguments = parser\parse!
 
+-- accept arguments over standard input
+-- (these take precedence over command-line flags)
+-- 
+-- TODO: possibly, it's better to read line per line
+-- and execute the command once per line?
+if arguments.stdin
+    input = io.read '*all'
+    for key, value in pairs cjson.decode input
+        arguments[key] = value
+
 host = arguments.host or (os.getenv 'JOBS_REDIS_HOST') or '127.0.0.1'
 port = arguments.port or (os.getenv 'JOBS_REDIS_PORT') or '6379'
 
 board = jobs.Board 'jobs', host, port
-
 
 if arguments.init or arguments.tick
     commands = jobs.initialize host, port

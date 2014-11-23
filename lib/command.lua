@@ -19,6 +19,7 @@ local init = parser:command('init'):description('initialize redis with jobs exte
 local tick = parser:command('tick'):description('put jobs that need to run on the queue (administrative)')
 local _list_0 = {
   show,
+  dump,
   remove,
   create,
   put,
@@ -31,6 +32,7 @@ for _index_0 = 1, #_list_0 do
   do
     command:option('-H', '--host'):description('the ip address to Redis')
     command:option('-P', '--port'):description('the port to Redis')
+    command:flag('-S', '--stdin'):description('accept configuration over standard input')
   end
 end
 local _list_1 = {
@@ -84,6 +86,12 @@ do
   respond:argument('executable'):description('The responding executable.')
 end
 local arguments = parser:parse()
+if arguments.stdin then
+  local input = io.read('*all')
+  for key, value in pairs(cjson.decode(input)) do
+    arguments[key] = value
+  end
+end
 local host = arguments.host or (os.getenv('JOBS_REDIS_HOST')) or '127.0.0.1'
 local port = arguments.port or (os.getenv('JOBS_REDIS_PORT')) or '6379'
 local board = jobs.Board('jobs', host, port)
