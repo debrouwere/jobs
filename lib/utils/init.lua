@@ -21,8 +21,26 @@ forever = function(f)
     end
   end
 end
+local copy
+copy = function(t)
+  local copied = { }
+  for key, value in pairs(t) do
+    copied[key] = value
+  end
+  return copied
+end
+local defaults
+defaults = function(default, more)
+  local options = copy(default)
+  for key, value in pairs(more) do
+    options[key] = value
+  end
+  return options
+end
 return {
   dedent = dedent,
   forever = forever,
-  timing = timing
+  timing = timing,
+  copy = copy,
+  defaults = defaults
 }

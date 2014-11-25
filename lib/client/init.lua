@@ -164,6 +164,11 @@ do
       local inline = string.match(command, '{payload}')
       local stdin = not inline
       if inline then
+        local payload
+        do
+          local _obj_0 = cjson.decode(meta)
+          payload = _obj_0[1]
+        end
         command = string.gsub(command, '{payload}', payload)
       end
       return queue:listen(function(meta)

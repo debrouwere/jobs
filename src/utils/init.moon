@@ -23,4 +23,18 @@ forever = (f) ->
         else
             posix.nanosleep 0, DECISECOND
 
-return {:dedent, :forever, :timing}
+-- copy a table
+copy = (t) ->
+    copied = {}
+    for key, value in pairs t
+        copied[key] = value
+    copied
+
+-- defaults
+defaults = (default, more) ->
+    options = copy default
+    for key, value in pairs more
+        options[key] = value
+    options
+
+return {:dedent, :forever, :timing, :copy, :defaults}

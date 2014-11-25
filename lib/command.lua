@@ -52,7 +52,7 @@ local _list_2 = {
 for _index_0 = 1, #_list_2 do
   local command = _list_2[_index_0]
   do
-    command:argument('name')
+    command:argument('id')
   end
 end
 local _list_3 = {
@@ -62,7 +62,7 @@ local _list_3 = {
 for _index_0 = 1, #_list_3 do
   local command = _list_3[_index_0]
   do
-    command:argument('name'):description('A job identifier; can be any string.')
+    command:argument('id'):description('A job identifier; can be any string.')
     command:argument('runner'):description('Which job runner to use, e.g. shell.')
     command:argument('payload'):description('What to pass to the runner.')
     command:option('-s', '--seconds'):description('Run the job every <seconds> seconds.')
@@ -85,88 +85,81 @@ do
   respond:argument('type'):description('What type of job to respond to.')
   respond:argument('executable'):description('The responding executable.')
 end
-local arguments = parser:parse()
-if arguments.stdin then
-  local input = io.read('*all')
-  for key, value in pairs(cjson.decode(input)) do
-    arguments[key] = value
-  end
-end
-local host = arguments.host or (os.getenv('JOBS_REDIS_HOST')) or '127.0.0.1'
-local port = arguments.port or (os.getenv('JOBS_REDIS_PORT')) or '6379'
-local board = jobs.Board('jobs', host, port)
-if arguments.init or arguments.tick then
-  local commands = jobs.initialize(host, port)
-  print('Loading Jobs commands into Redis.\n')
-  print('Loaded:\n')
-  for name, sha in pairs(commands) do
-    print("  " .. tostring(name) .. "    \t(" .. tostring(sha) .. ")")
-  end
-  print('')
-end
-if arguments.create or arguments.put then
-  local update
-  if arguments.create then
-    update = false
-  else
-    update = true
-  end
-  local options = {
-    update = update
-  }
-  return board:put(arguments.name, arguments.runner, arguments.payload, arguments, options)
-else
-  if arguments.show then
-    local meta = board:show(arguments.name)
-    local _exp_0 = arguments.format
-    if 'json' == _exp_0 then
-      return print(meta)
-    elseif 'yaml' == _exp_0 then
-      meta = cjson.decode(meta)
-      return print(yaml.dump(meta))
-    else
-      return error('format should be one of: yaml, json')
+local execute
+execute = function(board, arguments)
+  if arguments.init or arguments.tick then
+    local commands = jobs.initialize(host, port)
+    print('Loading Jobs commands into Redis.\n')
+    print('Loaded:\n')
+    for name, sha in pairs(commands) do
+      print("  " .. tostring(name) .. "    \t(" .. tostring(sha) .. ")")
     end
+    print('')
+  end
+  if arguments.create or arguments.put then
+    local update
+    if arguments.create then
+      update = false
+    else
+      update = true
+    end
+    local options = {
+      update = update
+    }
+    return board:put(arguments.id, arguments.runner, arguments.payload, arguments, options)
   else
-    if arguments.dump then
-      dump = board:dump()
+    if arguments.show then
+      local meta = board:show(arguments.id)
       local _exp_0 = arguments.format
       if 'json' == _exp_0 then
-        return print(cjson.encode(dump))
+        return print(meta)
       elseif 'yaml' == _exp_0 then
-        return print(yaml.dump(dump))
+        meta = cjson.decode(meta)
+        return print(yaml.dump(meta))
       else
         return error('format should be one of: yaml, json')
       end
     else
-      if arguments.remove then
-        return board:remove(arguments.name)
-      else
-        if arguments.respond then
-          print("Responding to " .. tostring(arguments.type) .. " jobs.")
-          return board:respond(arguments.type, arguments.executable)
+      if arguments.dump then
+        dump = board:dump()
+        local _exp_0 = arguments.format
+        if 'json' == _exp_0 then
+          return print(cjson.encode(dump))
+        elseif 'yaml' == _exp_0 then
+          return print(yaml.dump(dump))
         else
-          if arguments.tick then
-            print('Starting the job clock.')
-            return utils.forever((function()
-              local _base_0 = board
-              local _fn_0 = _base_0.tick
-              return function(...)
-                return _fn_0(_base_0, ...)
-              end
-            end)())
+          return error('format should be one of: yaml, json')
+        end
+      else
+        if arguments.remove then
+          return board:remove(arguments.id)
+        else
+          if arguments.respond then
+            print("Responding to " .. tostring(arguments.type) .. " jobs.")
+            return board:respond(arguments.type, arguments.executable)
           else
-            if arguments.register then
-              return error('not implemented yet')
+            if arguments.tick then
+              print('Starting the job clock.')
+              return utils.forever((function()
+                local _base_0 = board
+                local _fn_0 = _base_0.tick
+                return function(...)
+                  return _fn_0(_base_0, ...)
+                end
+              end)())
             else
-              if arguments.board then
+              if arguments.register then
                 return error('not implemented yet')
               else
-                if arguments.pop then
+                if arguments.board then
                   return error('not implemented yet')
                 else
-                  if arguments.next then
+                  if arguments.pop then
                     return error('not implemented yet')
+                  else
+                    if arguments.next then
+                      return error('not implemented yet')
+                    end
                   end
                 end
               end
@@ -176,4 +169,16 @@ else
       end
     end
   end
+end
+local arguments = parser:parse()
+local host = arguments.host or (os.getenv('JOBS_REDIS_HOST')) or '127.0.0.1'
+local port = arguments.port or (os.getenv('JOBS_REDIS_PORT')) or '6379'
+local board = jobs.Board('jobs', host, port)
+if arguments.stdin then
+  for input in io.lines() do
+    local options = utils.defaults(arguments, (cjson.decode(input)))
+    execute(board, options)
+  end
+else
+  return execute(board, arguments)
 end

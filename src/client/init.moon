@@ -143,6 +143,7 @@ class Board
         inline = string.match command, '{payload}'
         stdin = not inline
         if inline
+            {payload} = cjson.decode meta
             command = string.gsub command, '{payload}', payload
 
         queue\listen (meta) ->

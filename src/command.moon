@@ -37,11 +37,11 @@ for command in *{show, dump}
 
 for command in *{show, remove}
     with command
-        \argument('name')
+        \argument('id')
 
 for command in *{create, put}
     with command
-        \argument('name')\description('A job identifier; can be any string.')
+        \argument('id')\description('A job identifier; can be any string.')
         \argument('runner')\description('Which job runner to use, e.g. shell.')
         -- we can also accept a payload over stdin
         \argument('payload')\description('What to pass to the runner.')
@@ -73,7 +73,76 @@ with respond
     \argument('type')\description('What type of job to respond to.')
     \argument('executable')\description('The responding executable.')
 
+
+execute = (board, arguments) ->
+    if arguments.init or arguments.tick
+        commands = jobs.initialize host, port
+        print 'Loading Jobs commands into Redis.\n'
+        print 'Loaded:\n'
+        for name, sha in pairs commands
+            print "  #{name}    \t(#{sha})"
+        print ''
+
+
+    if arguments.create or arguments.put
+        update = if arguments.create then false else true
+        options = {:update}
+
+        board\put arguments.id, 
+            arguments.runner, arguments.payload, arguments, options
+
+    else if arguments.show
+        meta = board\show arguments.id
+        switch arguments.format
+            when 'json'
+                print meta
+            when 'yaml'
+                meta = cjson.decode meta
+                print yaml.dump meta
+            else
+                error 'format should be one of: yaml, json'
+
+    else if arguments.dump
+        dump = board\dump!
+
+        switch arguments.format
+            when 'json'
+                print cjson.encode dump
+            when 'yaml'
+                print yaml.dump dump
+            else
+                error 'format should be one of: yaml, json'
+
+    else if arguments.remove
+        board\remove arguments.id
+
+    else if arguments.respond
+        print "Responding to #{arguments.type} jobs."
+        board\respond arguments.type, arguments.executable
+
+    else if arguments.tick
+        print 'Starting the job clock.'
+        utils.forever board\tick
+
+    else if arguments.register
+        error 'not implemented yet'
+
+    else if arguments.board
+        error 'not implemented yet'
+
+    else if arguments.pop
+        error 'not implemented yet'
+
+    else if arguments.next
+        error 'not implemented yet'
+
+
 arguments = parser\parse!
+
+host = arguments.host or (os.getenv 'JOBS_REDIS_HOST') or '127.0.0.1'
+port = arguments.port or (os.getenv 'JOBS_REDIS_PORT') or '6379'
+
+board = jobs.Board 'jobs', host, port
 
 -- accept arguments over standard input
 -- (these take precedence over command-line flags)
@@ -81,72 +150,8 @@ arguments = parser\parse!
 -- TODO: possibly, it's better to read line per line
 -- and execute the command once per line?
 if arguments.stdin
-    input = io.read '*all'
-    for key, value in pairs cjson.decode input
-        arguments[key] = value
-
-host = arguments.host or (os.getenv 'JOBS_REDIS_HOST') or '127.0.0.1'
-port = arguments.port or (os.getenv 'JOBS_REDIS_PORT') or '6379'
-
-board = jobs.Board 'jobs', host, port
-
-if arguments.init or arguments.tick
-    commands = jobs.initialize host, port
-    print 'Loading Jobs commands into Redis.\n'
-    print 'Loaded:\n'
-    for name, sha in pairs commands
-        print "  #{name}    \t(#{sha})"
-    print ''
-
-
-if arguments.create or arguments.put
-    update = if arguments.create then false else true
-    options = {:update}
-
-    board\put arguments.name, 
-        arguments.runner, arguments.payload, arguments, options
-
-else if arguments.show
-    meta = board\show arguments.name
-    switch arguments.format
-        when 'json'
-            print meta
-        when 'yaml'
-            meta = cjson.decode meta
-            print yaml.dump meta
-        else
-            error 'format should be one of: yaml, json'
-
-else if arguments.dump
-    dump = board\dump!
-
-    switch arguments.format
-        when 'json'
-            print cjson.encode dump
-        when 'yaml'
-            print yaml.dump dump
-        else
-            error 'format should be one of: yaml, json'
-
-else if arguments.remove
-    board\remove arguments.name
-
-else if arguments.respond
-    print "Responding to #{arguments.type} jobs."
-    board\respond arguments.type, arguments.executable
-
-else if arguments.tick
-    print 'Starting the job clock.'
-    utils.forever board\tick
-
-else if arguments.register
-    error 'not implemented yet'
-
-else if arguments.board
-    error 'not implemented yet'
-
-else if arguments.pop
-    error 'not implemented yet'
-
-else if arguments.next
-    error 'not implemented yet'
+    for input in io.lines!
+        options = utils.defaults arguments, (cjson.decode input)
+        execute board, options
+else
+    execute board, arguments
