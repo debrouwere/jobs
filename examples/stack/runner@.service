@@ -3,8 +3,8 @@ Description=job runner
 After=scheduler.service
 
 [Service]
-;Restart=always
-;RestartSec=10
+Restart=always
+RestartSec=60
 TimeoutStartSec=600
 EnvironmentFile=/etc/environment
 ExecStartPre=/usr/bin/docker pull debrouwere/jobs
