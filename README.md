@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/debrouwere/jobs.svg?branch=master)](https://travis-ci.org/debrouwere/jobs)
 
-Jobs is a full-featured scheduler. **Warning:** not quite ready for prime time, don't use this.
+Jobs is a full-featured scheduler. **Status:** in beta. It's stable but not feature-complete and the API might still change.
 
 Features: 
 
