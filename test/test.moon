@@ -3,7 +3,6 @@ redis = require 'redis'
 jobs = require 'client/init'
 initialize = require 'initialize'
 
-
 -- The unit tests for the low-level interface try to tread
 -- a fine line between being decoupled enough to actually
 -- test "units" (one faulty component shouldn't break

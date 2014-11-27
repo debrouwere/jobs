@@ -19,7 +19,7 @@ watch:
 
 .PHONY: test
 test: build
-	busted test/test.moon
+	busted -m ';../lib?.lua' test/test.moon
 
 test.runners: build
 	# can be run with `make test.runners`
