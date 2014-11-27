@@ -1,5 +1,5 @@
 posix = require 'posix'
-timing = require 'lib/utils/timing'
+timing = require 'utils/timing'
 
 -- trim and dedent
 dedent = (s) ->

@@ -7,7 +7,7 @@ return function(...)
   local commands = { }
   local source = debug.getinfo(1).source
   local here = string.match(source, '^@(.+)/.+$')
-  local commands_directory = tostring(here) .. "/../lib/redis"
+  local commands_directory = tostring(here) .. "/redis"
   for file in lfs.dir(commands_directory) do
     do
       local name = string.match(file, '(.+)%.lua$')

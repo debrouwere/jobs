@@ -1,7 +1,7 @@
 local cjson = require('cjson')
-local initialize = require('lib/initialize')
-local connect = require('lib/client/connect')
-local utils = require('lib/utils/init')
+local initialize = require('initialize')
+local connect = require('client/connect')
+local utils = require('utils/init')
 local parse
 parse = function(str, format)
   if format == nil then
@@ -104,7 +104,8 @@ do
         error('not implemented yet')
       end
       if schedule.duration then
-        schedule.stop = (schedule.start or now) + schedule.duration
+        schedule.start = schedule.start or now
+        schedule.stop = schedule.start + (tonumber(schedule.duration))
       end
       local next_run = set(3, self.keys.board, self.keys.schedule, self.keys.registry, now, id, runner, payload, interval, schedule.start, schedule.stop, schedule.lambda, schedule.step)
       return tonumber(next_run)

@@ -1,3 +1,4 @@
 #!/usr/bin/env lua
 
-require "lib/command"
+package.path = package.path .. ";../lib?.lua"
+require "command"

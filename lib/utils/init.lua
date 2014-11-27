@@ -1,5 +1,5 @@
 local posix = require('posix')
-local timing = require('lib/utils/timing')
+local timing = require('utils/timing')
 local dedent
 dedent = function(s)
   s = string.gsub(s, '^%s*(.+)%s*$', '%1')

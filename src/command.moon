@@ -1,8 +1,8 @@
 cjson = require 'cjson'
 yaml = require 'yaml'
 argparse = require 'argparse'
-jobs = require 'lib/client/init'
-utils = require 'lib/utils/init'
+jobs = require 'client/init'
+utils = require 'utils/init'
 
 parser = argparse!
 

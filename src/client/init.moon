@@ -1,9 +1,9 @@
 -- Jobs reference high-level client library
 
 cjson = require 'cjson'
-initialize = require 'lib/initialize'
-connect = require 'lib/client/connect'
-utils = require 'lib/utils/init'
+initialize = require 'initialize'
+connect = require 'client/connect'
+utils = require 'utils/init'
 
 parse = (str, format='plain') ->
     if (type str) == 'string'
@@ -74,7 +74,8 @@ class Board
         if schedule.repeat
             error 'not implemented yet'
         if schedule.duration
-            schedule.stop = (schedule.start or now) + schedule.duration
+            schedule.start = schedule.start or now
+            schedule.stop = schedule.start + (tonumber schedule.duration)
         
         next_run = set 3, @keys.board, @keys.schedule, @keys.registry, 
             now, 

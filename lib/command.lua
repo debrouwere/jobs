@@ -1,8 +1,8 @@
 local cjson = require('cjson')
 local yaml = require('yaml')
 local argparse = require('argparse')
-local jobs = require('lib/client/init')
-local utils = require('lib/utils/init')
+local jobs = require('client/init')
+local utils = require('utils/init')
 local parser = argparse()
 do
   parser:name('job')
