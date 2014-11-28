@@ -105,7 +105,7 @@ class Board
         out = {}
         out.runners = runners
         out.jobs = {}
-        for id, serialized_meta in (pairs jobs)
+        for id, serialized_meta in pairs(jobs)
             meta = cjson.decode serialized_meta
             out.jobs[id] = meta
         out
@@ -113,7 +113,7 @@ class Board
     load: (board) =>
         @client\hmset @keys.registry, board.runners
         jobs = {}
-        for id, meta in (pairs jobs)
+        for id, meta in pairs(jobs)
             jobs[id] = cjson.encode meta
         @client\hmset @keys.board, jobs
 

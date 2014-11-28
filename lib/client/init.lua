@@ -131,7 +131,7 @@ do
       local out = { }
       out.runners = runners
       out.jobs = { }
-      for id, serialized_meta in (pairs(jobs)) do
+      for id, serialized_meta in pairs(jobs) do
         local meta = cjson.decode(serialized_meta)
         out.jobs[id] = meta
       end
@@ -140,7 +140,7 @@ do
     load = function(self, board)
       self.client:hmset(self.keys.registry, board.runners)
       local jobs = { }
-      for id, meta in (pairs(jobs)) do
+      for id, meta in pairs(jobs) do
         jobs[id] = cjson.encode(meta)
       end
       return self.client:hmset(self.keys.board, jobs)
