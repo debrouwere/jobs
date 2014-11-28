@@ -131,11 +131,19 @@ do
       local out = { }
       out.runners = runners
       out.jobs = { }
-      for id, serialized_meta in pairs(jobs) do
+      for id, serialized_meta in (pairs(jobs)) do
         local meta = cjson.decode(serialized_meta)
         out.jobs[id] = meta
       end
       return out
+    end,
+    load = function(self, board)
+      self.client:hmset(self.keys.registry, board.runners)
+      local jobs = { }
+      for id, meta in (pairs(jobs)) do
+        jobs[id] = cjson.encode(meta)
+      end
+      return self.client:hmset(self.keys.board, jobs)
     end,
     remove = function(self, id)
       local n_removed = self.client:jdel(2, self.keys.board, self.keys.schedule, id)
