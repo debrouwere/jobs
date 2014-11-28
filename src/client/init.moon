@@ -117,15 +117,22 @@ class Board
     register: (runner, command) =>
         @client\jregister 1, @keys.registry, runner, command
 
-    queue: (name) =>
+    get_queue: (name) =>
         Queue name, @
 
-    tick: (now) =>
-        now = now or os.time()
+    get_queues: =>
+        list = {}
         runners = @client\hgetall @keys.registry
-        queues = {}
         for runner, command in pairs runners
-            table.insert queues, (@queue runner).key
+            table.insert list, (@get_queue runner)
+        list
+
+    tick: (options={}) =>
+        now = options.now or os.time()
+        queues = [queue.key for queue in *@get_queues!]
+
+        if options.trim
+            keep = @trim options.trim, unpack(queues)
 
         n_queues = #queues
         n_keys = n_queues + 2
@@ -138,8 +145,19 @@ class Board
 
         n_queues
 
+    trim: (n=-1, ...) =>
+        queues = {...}
+        if #queues > 0
+            queues = utils.copy queues
+        else
+            queues = [queue.key for queue in *@get_queues!]
+
+        n_queues = #queues
+        table.insert queues, n
+        @client\jtrim n_queues, unpack(queues)
+
     respond: (queue, command) =>
-        queue = @queue queue
+        queue = @get_queue queue
 
         inline = string.match command, '{payload}'
         stdin = not inline

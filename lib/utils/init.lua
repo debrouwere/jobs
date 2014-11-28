@@ -9,13 +9,16 @@ dedent = function(s)
 end
 local DECISECOND = 1000 * 1000 * 100
 local forever
-forever = function(f)
+forever = function(f, ...)
+  local arguments = {
+    ...
+  }
   local last = os.time()
   while true do
     local now = os.time()
     if now > last then
       last = now
-      f()
+      f((unpack(arguments)))
     else
       posix.nanosleep(0, DECISECOND)
     end

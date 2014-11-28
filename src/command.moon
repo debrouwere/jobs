@@ -69,6 +69,9 @@ for command in *{create, put}
         -- repeat x times (we will calculate stop based on this)
         \option('-r', '--repeat')\description('Remove the job after <repeat> runs.')
 
+with tick
+    \option('-t', '--trim', 'Retain at most <n> queued jobs before ticking, to avoid jobs piling up.')
+
 with respond
     \argument('type')\description('What type of job to respond to.')
     \argument('executable')\description('The responding executable.')
@@ -122,7 +125,7 @@ execute = (board, arguments) ->
 
     else if arguments.tick
         print 'Starting the job clock.'
-        utils.forever board\tick
+        utils.forever board\tick, trim: arguments.trim
 
     else if arguments.register
         error 'not implemented yet'

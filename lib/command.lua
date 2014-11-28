@@ -82,6 +82,9 @@ for _index_0 = 1, #_list_3 do
   end
 end
 do
+  tick:option('-t', '--trim', 'Retain at most <n> queued jobs before ticking, to avoid jobs piling up.')
+end
+do
   respond:argument('type'):description('What type of job to respond to.')
   respond:argument('executable'):description('The responding executable.')
 end
@@ -146,7 +149,9 @@ execute = function(board, arguments)
                 return function(...)
                   return _fn_0(_base_0, ...)
                 end
-              end)())
+              end)(), {
+                trim = arguments.trim
+              })
             else
               if arguments.register then
                 return error('not implemented yet')

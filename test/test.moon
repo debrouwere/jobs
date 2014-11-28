@@ -1,7 +1,7 @@
 cjson = require 'cjson'
 redis = require 'redis'
-jobs = require 'client/init'
-initialize = require 'initialize'
+jobs = require 'lib/client/init'
+initialize = require 'lib/initialize'
 
 -- The unit tests for the low-level interface try to tread
 -- a fine line between being decoupled enough to actually
@@ -276,9 +276,9 @@ describe 'high-level interface', ->
         -- how many queues did the tick affect?
         queues = board\tick!
         assert.equals queues, 2
-        task = board\queue('console')\pop 'json'
+        task = board\get_queue('console')\pop 'json'
         assert.equals task.id, 'first-console-job'
-        task = board\queue('console')\pop 'json'
+        task = board\get_queue('console')\pop 'json'
         assert.falsy task
 
     it 'can convert human-readable intervals to seconds', ->
@@ -294,3 +294,18 @@ describe 'high-level interface', ->
         dump = board\dump!
         assert.truthy dump.jobs[name]
         assert.equals dump.jobs[name].interval, 5
+
+    it 'can trim the queues before ticking', ->
+        i = 0
+        while i < 100
+            i = i + 1
+            i_name = "name-#{i}"
+            board\put i_name, runner, payload, params
+
+        board\tick!
+        queue = (board\get_queue runner).key
+        before = store\llen queue
+        board\tick trim: 25
+        after = store\llen queue
+        assert.equals before, 100
+        assert.equals after, 25

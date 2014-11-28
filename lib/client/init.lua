@@ -144,15 +144,36 @@ do
     register = function(self, runner, command)
       return self.client:jregister(1, self.keys.registry, runner, command)
     end,
-    queue = function(self, name)
+    get_queue = function(self, name)
       return Queue(name, self)
     end,
-    tick = function(self, now)
-      now = now or os.time()
+    get_queues = function(self)
+      local list = { }
       local runners = self.client:hgetall(self.keys.registry)
-      local queues = { }
       for runner, command in pairs(runners) do
-        table.insert(queues, (self:queue(runner)).key)
+        table.insert(list, (self:get_queue(runner)))
+      end
+      return list
+    end,
+    tick = function(self, options)
+      if options == nil then
+        options = { }
+      end
+      local now = options.now or os.time()
+      local queues
+      do
+        local _accum_0 = { }
+        local _len_0 = 1
+        local _list_0 = self:get_queues()
+        for _index_0 = 1, #_list_0 do
+          local queue = _list_0[_index_0]
+          _accum_0[_len_0] = queue.key
+          _len_0 = _len_0 + 1
+        end
+        queues = _accum_0
+      end
+      if options.trim then
+        local keep = self:trim(options.trim, unpack(queues))
       end
       local n_queues = #queues
       local n_keys = n_queues + 2
@@ -160,8 +181,34 @@ do
       self.client:jtick(n_keys, self.keys.board, self.keys.schedule, unpack(queues))
       return n_queues
     end,
+    trim = function(self, n, ...)
+      if n == nil then
+        n = -1
+      end
+      local queues = {
+        ...
+      }
+      if #queues > 0 then
+        queues = utils.copy(queues)
+      else
+        do
+          local _accum_0 = { }
+          local _len_0 = 1
+          local _list_0 = self:get_queues()
+          for _index_0 = 1, #_list_0 do
+            local queue = _list_0[_index_0]
+            _accum_0[_len_0] = queue.key
+            _len_0 = _len_0 + 1
+          end
+          queues = _accum_0
+        end
+      end
+      local n_queues = #queues
+      table.insert(queues, n)
+      return self.client:jtrim(n_queues, unpack(queues))
+    end,
     respond = function(self, queue, command)
-      queue = self:queue(queue)
+      queue = self:get_queue(queue)
       local inline = string.match(command, '{payload}')
       local stdin = not inline
       if inline then

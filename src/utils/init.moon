@@ -13,13 +13,14 @@ DECISECOND = 1000 * 1000 * 100
 -- repeat forever, but at most once a second, 
 -- sleeping in between to avoid wasting 
 -- too many CPU cycles
-forever = (f) ->
+forever = (f, ...) ->
+    arguments = {...}
     last = os.time()
     while true
         now = os.time()
         if now > last
             last = now
-            f!
+            f (unpack arguments)
         else
             posix.nanosleep 0, DECISECOND
 
