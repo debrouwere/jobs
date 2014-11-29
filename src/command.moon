@@ -77,7 +77,7 @@ with respond
     \argument('executable')\description('The responding executable.')
 
 
-execute = (board, arguments) ->
+execute = (host, port, arguments) ->
     if arguments.init or arguments.tick
         commands = jobs.initialize host, port
         print 'Loading Jobs commands into Redis.\n'
@@ -86,6 +86,7 @@ execute = (board, arguments) ->
             print "  #{name}    \t(#{sha})"
         print ''
 
+    board = jobs.Board 'jobs', host, port
 
     if arguments.create or arguments.put
         update = if arguments.create then false else true
@@ -145,8 +146,6 @@ arguments = parser\parse!
 host = arguments.host or (os.getenv 'JOBS_REDIS_HOST') or '127.0.0.1'
 port = arguments.port or (os.getenv 'JOBS_REDIS_PORT') or '6379'
 
-board = jobs.Board 'jobs', host, port
-
 -- accept arguments over standard input
 -- (these take precedence over command-line flags)
 -- 
@@ -157,4 +156,4 @@ if arguments.stdin
         options = utils.defaults arguments, (cjson.decode input)
         execute board, options
 else
-    execute board, arguments
+    execute host, port, arguments

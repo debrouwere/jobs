@@ -1,3 +1,3 @@
 #!/usr/bin/env lua
 
-require "lib/runners/shell"
+require "runners/shell"

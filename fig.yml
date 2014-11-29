@@ -9,18 +9,18 @@ scheduler:
   links:
     - store
 
-runner:
-  image: debrouwere/jobs
-  command: job respond log job-log-runner --host store
-  volumes:
-    - log:/var/log/jobs
-  links:
-    - store
-    - scheduler
+#runner:
+#  image: debrouwere/jobs
+#  command: job respond log job-log-runner --host store
+#  volumes:
+#    - log:/var/log/jobs
+#  links:
+#    - store
+#    - scheduler
 
-client:
-  image: debrouwere/jobs
-  command: job put ticker log "hello world" --seconds 5 --host store
-  links:
-    - store
-    - scheduler
+#client:
+#  image: debrouwere/jobs
+#  command: job put ticker log "hello world" --seconds 5 --host store
+#  links:
+#    - store
+#    - scheduler

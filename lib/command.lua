@@ -89,7 +89,7 @@ do
   respond:argument('executable'):description('The responding executable.')
 end
 local execute
-execute = function(board, arguments)
+execute = function(host, port, arguments)
   if arguments.init or arguments.tick then
     local commands = jobs.initialize(host, port)
     print('Loading Jobs commands into Redis.\n')
@@ -99,6 +99,7 @@ execute = function(board, arguments)
     end
     print('')
   end
+  local board = jobs.Board('jobs', host, port)
   if arguments.create or arguments.put then
     local update
     if arguments.create then
@@ -178,12 +179,11 @@ end
 local arguments = parser:parse()
 local host = arguments.host or (os.getenv('JOBS_REDIS_HOST')) or '127.0.0.1'
 local port = arguments.port or (os.getenv('JOBS_REDIS_PORT')) or '6379'
-local board = jobs.Board('jobs', host, port)
 if arguments.stdin then
   for input in io.lines() do
     local options = utils.defaults(arguments, (cjson.decode(input)))
     execute(board, options)
   end
 else
-  return execute(board, arguments)
+  return execute(host, port, arguments)
 end
