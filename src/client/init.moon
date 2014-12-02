@@ -113,7 +113,7 @@ class Board
     load: (board) =>
         @client\hmset @keys.registry, board.runners
         jobs = {}
-        for id, meta in pairs(jobs)
+        for id, meta in pairs(board.jobs)
             jobs[id] = cjson.encode meta
         @client\hmset @keys.board, jobs
 
