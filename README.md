@@ -24,16 +24,16 @@ First, install [Lua](http://www.lua.org/), [Luarocks](http://luarocks.org/en/Dow
 On OS X, with [Homebrew](http://brew.sh/):
 
 ```shell
-    brew update
-    brew install redis lua luarocks
-    luarocks install jobs
+brew update
+brew install redis lua luarocks
+luarocks install jobs
 ```
 
 On Linux with APT:
 
 ```shell
-    apt-get install redis-server lua5.1 liblua5.1-dev luarocks
-    luarocks install jobs
+apt-get install redis-server lua5.1 liblua5.1-dev luarocks
+luarocks install jobs
 ```
 
 At this point you'll have a working Jobs installation, but you will still want to daemonize the `jobs tick` command, so jobs are added to the proper job queues when they should run, and – if running a minimal local installation – you'll also want to daemonize the actual job runners. (The ticker and local runners are under development.)
@@ -48,9 +48,9 @@ Another way to work with Jobs is through job boards – Jobs' version of crontab
 
 ### Programmatically
 
-Alternatively, you can run `jobs init` which will tell you the sha hashes for each command, so you can run the custom Redis job commands using [evalsha](http://redis.io/commands/evalsha).
+The simplest (but not easiest) way to interact with Jobs from your program is to run the custom Redis job commands using [evalsha](http://redis.io/commands/evalsha). This works great and requires no library support, but it's also quite verbose.
 
-While interacting with Jobs through Redis works great, it's also quite verbose. For Lua, there's client library that makes things easier:
+For Lua and [Python](https://github.com/debrouwere/jobs.py), there's client libraries that makes things easier:
 
 ```lua
 -- high-level client library
@@ -89,11 +89,11 @@ Pending better documentation, take a look at `src/redis`. The header to each com
 
 ### Creating your own client library
 
-If you'd like to access Jobs from within your code (as opposed to through the command-line or through a job board) you can. Jobs comes with a client library for Lua, described above, but for other languages you'll have to create something similar yourself.
+If you'd like to access Jobs from within your code (as opposed to through the command-line or through a job board) you can. Above, we described the Jobs client library for Lua. A feature-complete client library also exists for [Python](https://github.com/debrouwere/jobs.py). For other languages you'll have to create something similar yourself. Luckily, about 100 lines of code should do the trick.
 
-First, you will want a system that turns job commands into their equivalent evalshas. You can get this mapping from the `commands` hash in Redis. Most Redis client libraries have the ability to add custom commands.
+First, you will want a system that turns job commands into their equivalent evalshas. You can get this mapping from the `commands` hash in Redis. Most Redis client libraries have the ability to add custom commands, allowing you to add in `jset`, `jget` and all the other Jobs commands.
 
-Secondly, while Redis commands should always specify all the keys they operate on (which is why in the code above, we keep referring to `jobs`, `jobs:schedule`, and `jobs:runners`), but in a client library you can just hardcode these so the end user doesn't have to specify them over and over again.
+Secondly, while Redis commands should always specify all the keys they operate on (which is why in the code above, we keep referring to `jobs`, `jobs:schedule`, and `jobs:runners`), in a client library you can just hardcode these so the end user doesn't have to specify them over and over again.
 
 Finally, the Redis commands require all arguments to be entered in the right order. In a client library, you might accept a range of options (start and stop time, interval) and then put these in the right order when sending them off to Redis. It's also nice to give users the option to specify times in seconds, minutes, hours and days. Just convert them all to seconds, which is what the `JSET` command expects.
 
@@ -116,9 +116,22 @@ Currently, there's just two runners:
 
 ### Write your own runner
 
-A runner is simply an application that can be run from the command-line and that accepts job metadata over standard input. Use `jobs respond <type> "<command>"` to hook up the runner to your Jobs instance.
+A runner is simply an application that can be run from the command-line and that accepts job metadata over standard input. Use `jobs respond <type> "<command>"` to hook up the runner to your Jobs instance. You can do the same thing programmatically, for example in Python:
 
-Alternatively, just `JPOP` tasks from a job queue (e.g. `jobs:queue:console`.)
+```python
+import redisjobs
+board = redisjobs.Board()
+
+def fetch(meta):
+    with open('backup.txt', 'w') as f:
+        response = requests.get(meta['url'])
+        f.write(response.text)
+
+# respond to backup tasks
+board.respond('backup', fetch)
+```
+
+Alternatively, just `JPOP` or `RPOP` tasks from a job queue (e.g. `jobs:queue:backup`.)
 
 ## Features under consideration
 
