@@ -117,6 +117,12 @@ class Board
             jobs[id] = cjson.encode meta
         @client\hmset @keys.board, jobs
 
+    count: =>
+        queues = [queue.key for queue in *@get_queues!]
+        n_keys = 3 + #queues
+        counts = @client\jcount n_keys, @keys.board, @keys.schedule, @keys.registry, queues
+        cjson.decode counts
+
     remove: (id) =>
         n_removed = @client\jdel 2, @keys.board, @keys.schedule, id
         tonumber n_removed
@@ -137,9 +143,10 @@ class Board
     tick: (options={}) =>
         now = options.now or os.time()
         queues = [queue.key for queue in *@get_queues!]
+        trimmed = 0
 
         if options.trim
-            keep = @trim options.trim, unpack(queues)
+            trimmed = @trim options.trim, unpack(queues)
 
         n_queues = #queues
         n_keys = n_queues + 2
@@ -148,7 +155,15 @@ class Board
         -- so we tack on `now` instead of specifying it 
         -- separately during the function call
         table.insert queues, now
-        @client\jtick n_keys, @keys.board, @keys.schedule, unpack(queues)
+        queued = @client\jtick n_keys, @keys.board, @keys.schedule, unpack(queues)
+
+        if options.heartbeat
+            options.heartbeat {
+                timestamp: now, 
+                queues: queues, 
+                queued: queued, 
+                trimmed: trimmed,                 
+            }
 
         n_queues
 

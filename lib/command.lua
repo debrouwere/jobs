@@ -144,6 +144,11 @@ execute = function(host, port, arguments)
           else
             if arguments.tick then
               print('Starting the job clock.')
+              local trim = arguments.trim or (os.getenv('JOBS_QUEUE_TRIM'))
+              local heartbeat
+              heartbeat = function(meta)
+                return print("[" .. tostring(meta.timestamp) .. "]\n            Queued " .. tostring(meta.queued) .. " jobs onto " .. tostring(#meta.queues) .. " queues.\n            Trimmed " .. tostring(meta.trimmed) .. " jobs from the queue.")
+              end
               return utils.forever((function()
                 local _base_0 = board
                 local _fn_0 = _base_0.tick
@@ -151,7 +156,8 @@ execute = function(host, port, arguments)
                   return _fn_0(_base_0, ...)
                 end
               end)(), {
-                trim = arguments.trim
+                trim = trim,
+                heartbeat = heartbeat
               })
             else
               if arguments.register then

@@ -145,6 +145,23 @@ do
       end
       return self.client:hmset(self.keys.board, jobs)
     end,
+    count = function(self)
+      local queues
+      do
+        local _accum_0 = { }
+        local _len_0 = 1
+        local _list_0 = self:get_queues()
+        for _index_0 = 1, #_list_0 do
+          local queue = _list_0[_index_0]
+          _accum_0[_len_0] = queue.key
+          _len_0 = _len_0 + 1
+        end
+        queues = _accum_0
+      end
+      local n_keys = 3 + #queues
+      local counts = self.client:jcount(n_keys, self.keys.board, self.keys.schedule, self.keys.registry, queues)
+      return cjson.decode(counts)
+    end,
     remove = function(self, id)
       local n_removed = self.client:jdel(2, self.keys.board, self.keys.schedule, id)
       return tonumber(n_removed)
@@ -180,13 +197,22 @@ do
         end
         queues = _accum_0
       end
+      local trimmed = 0
       if options.trim then
-        local keep = self:trim(options.trim, unpack(queues))
+        trimmed = self:trim(options.trim, unpack(queues))
       end
       local n_queues = #queues
       local n_keys = n_queues + 2
       table.insert(queues, now)
-      self.client:jtick(n_keys, self.keys.board, self.keys.schedule, unpack(queues))
+      local queued = self.client:jtick(n_keys, self.keys.board, self.keys.schedule, unpack(queues))
+      if options.heartbeat then
+        options.heartbeat({
+          timestamp = now,
+          queues = queues,
+          queued = queued,
+          trimmed = trimmed
+        })
+      end
       return n_queues
     end,
     trim = function(self, n, ...)

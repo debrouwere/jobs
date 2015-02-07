@@ -24,6 +24,7 @@ tick     = parser\command('tick')\description('put jobs that need to run on the 
 -- board    = parser\command 'board'
 -- pop      = parser\command 'pop'
 -- next     = parser\command 'next'
+-- count    = parser\command 'count'
 
 for command in *{show, dump, remove, create, put, respond, init, tick}
     with command
@@ -126,7 +127,12 @@ execute = (host, port, arguments) ->
 
     else if arguments.tick
         print 'Starting the job clock.'
-        utils.forever board\tick, trim: arguments.trim
+        trim = arguments.trim or (os.getenv 'JOBS_QUEUE_TRIM')
+        heartbeat = (meta) ->
+            print "[#{meta.timestamp}]
+            Queued #{meta.queued} jobs onto #{#meta.queues} queues.
+            Trimmed #{meta.trimmed} jobs from the queue."
+        utils.forever board\tick, {:trim, :heartbeat}
 
     else if arguments.register
         error 'not implemented yet'

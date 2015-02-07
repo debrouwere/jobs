@@ -67,6 +67,9 @@ describe 'low-level interface', ->
             os.time(), 
             'second-job', 'shell', update.payload, update.interval
 
+        assert.equals status1, 1
+        assert.equals status2, 0
+
         returned = cjson.decode store\hget 'jobs', 'second-job'
         assert.are.equal expected.payload, returned.payload
 
@@ -74,10 +77,10 @@ describe 'low-level interface', ->
         interval = 5
         now = 1000
 
-        next_run = store\jset 3, board, schedule, registry, 
+        created = store\jset 3, board, schedule, registry, 
             now, 'third-job', 'shell', -1, interval
 
-        assert.are.equal next_run, now
+        assert.are.equal created, 1
 
     it 'can get a job', ->
         store\hset 'jobs', 'raw-job', cjson.encode {message: 'hello world'}
@@ -228,6 +231,23 @@ describe 'low-level interface', ->
         -- can't pop a job twice
         assert.falsy store\jpop 1, b_queue
 
+    it 'can count everything in the system', ->
+        store\jset 3, board, schedule, registry, 
+            os.time(), 
+            job, runner, 0, 0
+
+        serialized_counts = store\jcount 4, board, schedule, registry, queue
+        counts = cjson.decode serialized_counts
+        assert.equals counts.jobs, 1
+        assert.equals counts.runners, 1        
+        assert.equals counts.scheduled, 1
+        assert.equals counts.queued[queue], 0
+
+        -- works w/o specifying one or more queues too
+        serialized_counts = store\jcount 3, board, schedule, registry
+        counts = cjson.decode serialized_counts
+        assert.equals counts.jobs, 1
+
 
 describe 'high-level interface', ->
     timing = require 'utils/timing'
@@ -252,8 +272,8 @@ describe 'high-level interface', ->
         seconds: 5
 
     it 'can convert responses to the proper types', ->
-        next_run = board\put name, runner, payload, params
-        assert.equals (type next_run), 'number'
+        status = board\put name, runner, payload, params
+        assert.equals (type status), 'number'
 
     it 'can parse job metadata or leave it as a string', ->
         board\put name, runner, payload, params
@@ -296,16 +316,21 @@ describe 'high-level interface', ->
         assert.equals dump.jobs[name].interval, 5
 
     it 'can trim the queues before ticking', ->
+        trim = 25
+        n = 100
         i = 0
-        while i < 100
+        while i < n
             i = i + 1
             i_name = "name-#{i}"
             board\put i_name, runner, payload, params
 
+        heartbeat = (meta) ->
+            assert.equals meta.trimmed, n - trim
+
         board\tick!
         queue = (board\get_queue runner).key
         before = store\llen queue
-        board\tick trim: 25
+        board\tick {:trim, :heartbeat}
         after = store\llen queue
-        assert.equals before, 100
-        assert.equals after, 25
+        assert.equals before, n
+        assert.equals after, trim
