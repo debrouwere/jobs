@@ -89,4 +89,5 @@ else
     end
   end
 end
-return next_run
+local _ = next_run
+return 1

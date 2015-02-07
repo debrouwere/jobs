@@ -9,7 +9,7 @@
 {board} = KEYS
 {now, id} = ARGV
 
-if (redis.call 'hexists', board, id) != 0
+if (redis.call 'hexists', board, id) == 1
     0
 else 
 
@@ -115,6 +115,5 @@ else
     next_run
     -- END INLINED jnext --
 
-    -- END INLINED jset --
+    1-- END INLINED jset --
 
-    1

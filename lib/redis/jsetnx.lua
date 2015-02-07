@@ -8,7 +8,7 @@ do
   local _obj_0 = ARGV
   now, id = _obj_0[1], _obj_0[2]
 end
-if (redis.call('hexists', board, id)) ~= 0 then
+if (redis.call('hexists', board, id)) == 1 then
   return 0
 else
   local schedule, registry
