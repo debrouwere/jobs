@@ -4,6 +4,9 @@ build: lib
 
 # Travis emulates a C build process, which 
 # requires a `make install` step to be present
+# 
+# To install the binary locally, use
+# `luarocks make rockspec/jobs-scm-1.rockspec`
 install:
 
 lib: $(wildcard src/*) $(wildcard src/*/*)
