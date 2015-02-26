@@ -147,7 +147,10 @@ execute = function(host, port, arguments)
               local trim = arguments.trim or (os.getenv('JOBS_QUEUE_TRIM'))
               local heartbeat
               heartbeat = function(meta)
-                return print("[" .. tostring(meta.timestamp) .. "]\n            Queued " .. tostring(meta.queued) .. " jobs onto " .. tostring(#meta.queues) .. " queues.\n            Trimmed " .. tostring(meta.trimmed) .. " jobs from the queue.")
+                local timestamp, queued, queues, trimmed
+                timestamp, queued, queues, trimmed = meta[1], meta[2], meta[3], meta[4]
+                local dt = os.date("!%Y-%m-%d", timestamp)
+                return print("[" .. tostring(dt) .. "] Queued " .. tostring(queued) .. " jobs onto " .. tostring(queues) .. " queues. Trimmed " .. tostring(trimmed) .. " jobs from the queue.")
               end
               return utils.forever((function()
                 local _base_0 = board

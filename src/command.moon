@@ -129,9 +129,9 @@ execute = (host, port, arguments) ->
         print 'Starting the job clock.'
         trim = arguments.trim or (os.getenv 'JOBS_QUEUE_TRIM')
         heartbeat = (meta) ->
-            print "[#{meta.timestamp}]
-            Queued #{meta.queued} jobs onto #{#meta.queues} queues.
-            Trimmed #{meta.trimmed} jobs from the queue."
+            {timestamp, queued, queues, trimmed} = meta
+            dt = os.date("!%Y-%m-%d", timestamp)
+            print "[#{dt}] Queued #{queued} jobs onto #{queues} queues. Trimmed #{trimmed} jobs from the queue."
         utils.forever board\tick, {:trim, :heartbeat}
 
     else if arguments.register
