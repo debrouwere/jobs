@@ -154,8 +154,9 @@ class Board
         -- Lua quirk: unpack has to be the final argument, 
         -- so we tack on `now` instead of specifying it 
         -- separately during the function call
-        table.insert queues, now
-        queued = @client\jtick n_keys, @keys.board, @keys.schedule, unpack(queues)
+        vargs = [queue.key for queue in *@get_queues!]
+        table.insert vargs, now
+        queued = @client\jtick n_keys, @keys.board, @keys.schedule, unpack(vargs)
 
         if options.heartbeat
             options.heartbeat {

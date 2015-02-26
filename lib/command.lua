@@ -148,9 +148,9 @@ execute = function(host, port, arguments)
               local heartbeat
               heartbeat = function(meta)
                 local timestamp, queued, queues, trimmed
-                timestamp, queued, queues, trimmed = meta[1], meta[2], meta[3], meta[4]
-                local dt = os.date("!%Y-%m-%d", timestamp)
-                return print("[" .. tostring(dt) .. "] Queued " .. tostring(queued) .. " jobs onto " .. tostring(queues) .. " queues. Trimmed " .. tostring(trimmed) .. " jobs from the queue.")
+                timestamp, queued, queues, trimmed = meta.timestamp, meta.queued, meta.queues, meta.trimmed
+                local dt = os.date("!%Y-%m-%d %T", timestamp)
+                return print("[" .. tostring(dt) .. "] Queued " .. tostring(queued) .. " jobs onto " .. tostring(#queues) .. " queues. Trimmed " .. tostring(trimmed) .. " jobs from the queue.")
               end
               return utils.forever((function()
                 local _base_0 = board

@@ -203,8 +203,20 @@ do
       end
       local n_queues = #queues
       local n_keys = n_queues + 2
-      table.insert(queues, now)
-      local queued = self.client:jtick(n_keys, self.keys.board, self.keys.schedule, unpack(queues))
+      local vargs
+      do
+        local _accum_0 = { }
+        local _len_0 = 1
+        local _list_0 = self:get_queues()
+        for _index_0 = 1, #_list_0 do
+          local queue = _list_0[_index_0]
+          _accum_0[_len_0] = queue.key
+          _len_0 = _len_0 + 1
+        end
+        vargs = _accum_0
+      end
+      table.insert(vargs, now)
+      local queued = self.client:jtick(n_keys, self.keys.board, self.keys.schedule, unpack(vargs))
       if options.heartbeat then
         options.heartbeat({
           timestamp = now,
