@@ -4,7 +4,7 @@ services:
   - redis-server
 
 install:
-  - sudo apt-get install lua5.1 liblua5.1-dev
+  - sudo apt-get install lua5.2 liblua5.2-dev
   # luarocks and accoutrements
   - sudo apt-get install luarocks
   - sudo luarocks install luasec OPENSSL_LIBDIR=/usr/lib/x86_64-linux-gnu
